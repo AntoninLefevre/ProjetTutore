@@ -5,6 +5,8 @@
  * written by KDO kdo@zpmag.com
  */
 
+require_once('User.class.php');
+
 class WebPage {
 
 	/**
@@ -28,6 +30,8 @@ class WebPage {
 	 */
 	private  $body = null;
 
+    private  $menu = null;
+
 
 	/**
 	 * @access public
@@ -35,8 +39,12 @@ class WebPage {
 	 * @return void
 	 */
 
-	public  function __construct($title = null) {
+	public  function __construct($title = null, $menu = true) {
 		$this->setTitle($title);
+        if($menu)
+            $this->setMenu();
+        else
+            $this->setAdminMenu();
 	}
 
 
@@ -120,7 +128,7 @@ HTML
     <script type='text/javascript' src='$url'></script>
 
 HTML
-);
+        );
 	}
 
 
@@ -133,6 +141,70 @@ HTML
 	public  function appendContent($content) {
 		$this->body .= $content;
 	}
+
+    public function setMenu(){
+        User::startSession();
+        $categorys = Category::displayMenuCategorys();
+        if(isset($_SESSION['connected']) && $_SESSION['connected']){
+            if($_SESSION["user"]->isAdministrator || $_SESSION['user']->redacArticle || $_SESSION['user']->editOwnArticle || $_SESSION['user']->deleteOwnArticle || $_SESSION['user']->editComment || $_SESSION['user']->deleteComment){
+            $this->menu = <<<HTML
+        <ul>
+            <li><a href="index.php">Accueil</a></li>
+            $categorys
+            <li><a href="profile.php">Profil</a></li>
+            <li><a href="administration/index.php">Administration</a></li>
+            <li><a href="logout.php">Déconnexion</a></li>
+        </ul>
+HTML;
+            } else {
+            $this->menu = <<<HTML
+        <ul>
+            <li><a href="index.php">Accueil</a></li>
+            $categorys
+            <li><a href="profile.php">Profil</a></li>
+            <li><a href="logout.php">Déconnexion</a></li>
+        </ul>
+HTML;
+            }
+        } else {
+            $this->menu = <<<HTML
+        <ul>
+            <li><a href="index.php">Accueil</a></li>
+            $categorys
+            <li><a href="connexion.php">Connexion</a></li>
+            <li><a href="subscribe.php">Inscription</a></li>
+        </ul>
+HTML;
+        }
+    }
+
+    public function setAdminMenu(){
+        User::startSession();
+        if(isset($_SESSION['connected']) && $_SESSION['connected']){
+            $html = "<ul>";
+            $html .= "<li><a href='..'>Site</a></li>\n";
+            if($_SESSION['user']->redacArticle || $_SESSION['user']->editOwnArticle || $_SESSION['user']->deleteOwnArticle){
+                $html .= "<li><a href='articles.php'>Articles</a></li>\n";
+            }
+
+            if($_SESSION['user']->isAdministrator){
+                $html .= "<li><a href='category.php'>Catégories</a></li>\n";
+            }
+
+            if($_SESSION['user']->editComment || $_SESSION['user']->deleteComment){
+                $html .= "<li><a href='comments.php'>Commentaires</a></li>\n";
+            }
+
+            if($_SESSION['user']->isAdministrator){
+                $html .= "<li><a href='optionsSite.php'>Options</a></li>\n";
+            }
+
+            $html .= "</ul>";
+
+            $this->menu = $html;
+        }
+
+    }
 
 
 	/**
@@ -153,6 +225,7 @@ HTML
         {$this->head}
     </head>
     <body>
+        {$this->menu}
         {$this->body}
     </body>
 </html>

@@ -2,11 +2,12 @@
 
 require_once('autoload.inc.php');
 
-$wp = new WebPage("Page d'accueil");
+$wp = new WebPage("Accueil");
 
-$wp->appendContent(<<<HTML
-    <h1>Test de la classe WebPage</h1>
-HTML
-);
+$wp->appendCssUrl('style/default/style.css');
+
+$wp->appendContent("<h1>Page d'accueil</h1>");
+
+$site = Site::getOptions();
 
 echo $wp->toHTML();

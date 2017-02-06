@@ -6,9 +6,53 @@
  * @see        User
  */
 require_once('User.class.php');
+require_once('Category.class.php');
 
 class Administrator extends User {
 
+
+	public function __construct($user){
+		$this->idUser = $user->idUser;
+		$this->nicknameUser = $user->nicknameUser;
+		$this->emailUser = $user->emailUser;
+		$this->validUser = $user->validUser;
+		$this->redacArticle = $user->redacArticle;
+		$this->editOwnArticle = $user->editOwnArticle;
+		$this->deleteOwnArticle = $user->deleteOwnArticle;
+		$this->editComment = $user->editComment;
+		$this->deleteComment = $user->deleteComment;
+		$this->isAdministrator = $user->isAdministrator;
+	}
+
+	public function formOptionsSite($data = array(), $infos = ""){
+		if(sizeof($data) == 0)
+			$data = Site::getOptions();
+
+		$siteName = $data['siteName'];
+		$siteDescription = $data['siteDescription'];
+		$adminEmail = $data['adminEmail'];
+		$articlesPerPage = $data['articlesPerPage'];
+		$commentsPerPage = $data['commentsPerPage'];
+		$theme = $data['theme'];
+		$html = <<<HTML
+		<form action="" method="post">
+			<input type="text" name="siteName" placeholder="Nom du site" value="$siteName">
+			<input type="text" name="siteDescription" placeholder="Nom du site" value="$siteDescription">
+			<input type="text" name="adminEmail" placeholder="Nom du site" value="$adminEmail">
+			<input type="number" name="articlesPerPage" placeholder="Nom du site" value="$articlesPerPage">
+			<input type="number" name="commentsPerPage" placeholder="Nom du site" value="$commentsPerPage">
+			<input type="text" name="theme" placeholder="Nom du site" value="$theme">
+			<input type="submit" name="formOptionsSite">
+		</form>
+HTML;
+		return $html;
+	}
+
+
+
+	public function editOptionSite($data){
+
+	}
 
 	/**
 	 * Supprime un utilisateur
@@ -17,9 +61,9 @@ class Administrator extends User {
 	 * @return void
 	 */
 
-	public  function deleteUser($idUser) {
+	/*public  function deleteUser($idUser) {
 
-	}
+	}*/
 
 
 	/**

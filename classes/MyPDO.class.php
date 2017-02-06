@@ -92,7 +92,7 @@ PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
 				self::$_PDOInstance = new PDO(self::$_DSN, self::$_username, self::$_password, self::$_driverOptions) ;
 			}
 			else {
-				throw new Exception(__CLASS__ . ": Configuration not set");
+				return false;
 			}
 		}
 		return self::$_PDOInstance;
