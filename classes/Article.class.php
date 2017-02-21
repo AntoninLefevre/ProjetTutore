@@ -12,21 +12,25 @@ class Article {
 	 * @var int
 	 * @access public
 	 */
-	public  $idArticle;
+	private  $idArticle;
 
 	/**
 	 *
 	 * @var String
 	 * @access public
 	 */
-	public  $titleArticle;
+	private  $titleArticle;
 
 	/**
 	 *
 	 * @var String
 	 * @access public
 	 */
-	public  $contentArticle;
+	private  $contentArticle;
+
+    private $datetimeArticle;
+    private $idCategory;
+    private $idUser;
 
 
 	/**
@@ -46,7 +50,10 @@ class Article {
 	 */
 
 	public  function __get($name) {
-
+        if(property_exists(__CLASS__, $name)){
+            return $this->$name;
+        }
+        throw new Exception("L'attribut {$name} n'existe pas");
 	}
 
 
@@ -56,8 +63,20 @@ class Article {
 	 * @return Article
 	 */
 
-	public  function getArticle($idArticle) {
+	public static function getArticle($idArticle) {
+        $bdd = MyPDO::getInstance();
 
+        $pdo = $bdd->prepare("SELECT * FROM article WHERE idArticle = ?");
+        $pdo->execute(array($idArticle));
+        $pdo->setFetchMode(PDO::FETCH_CLASS, __CLASS__);
+
+        $res = $pdo->fetch();
+
+        if(empty($res)){
+            return false;
+        }
+
+        return $res;
 	}
 
 
@@ -71,8 +90,10 @@ class Article {
 
 		$pdo = $bdd->prepare("SELECT * FROM article");
 		$pdo->execute();
+        $pdo->setFetchMode(PDO::FETCH_CLASS, __CLASS__);
 
-		$res = $pdo->fetchAll(PDO::FETCH_CLASS, __CLASS__);
+
+		$res = $pdo->fetchAll();
 
 		if(empty($res)){
 			return false;
@@ -81,11 +102,114 @@ class Article {
 		return $res;
 	}
 
+    public static function getArticlesPerCategory($categories){
+        $where = implode(" OR idCategory = ", $categories);
+        $bdd = MyPDO::getInstance();
+
+        $pdo = $bdd->prepare("SELECT * FROM article WHERE idCategory = " . $where);
+        $pdo->setFetchMode(PDO::FETCH_CLASS, __CLASS__);
+        $pdo->execute();
+
+        $res = $pdo->fetchAll();
+
+        if(empty($res)){
+            return false;
+        }
+
+        return $res;
+    }
+
+    public function displayArticle($isCat = true){
+        $read = $isCat ? "<p><a href='articles.php?id={$this->idArticle}'>Lire</a></p>" : "";
+        $content = str_replace('src="../images/', 'src="images/', $this->contentArticle);
+        $datetime = strftime("le %d/%m/%Y à %T ", strtotime($this->datetimeArticle));
+        $user = User::getUser($this->idUser);
+        $auteur = $user ? $user->nicknameUser : "Auteur inconnu";
+        $html = <<<HTML
+        <div>
+            <h2>{$this->titleArticle}</h2>
+            <div>
+                $content
+            </div>
+            <div>Publié $datetime par $auteur</div>
+            $read
+        </div>
+HTML;
+
+        return $html;
+    }
+
+    public static function displayArticles($info = ""){
+        $articles = Article::getArticles();
+        $html = <<<HTML
+        <a href="?a=a">Rédiger un article</a>
+        $info
+        <table>
+            <tr>
+                <th>Titre</th>
+                <th>Catégorie</th>
+                <th>Date</th>
+                <th>Rédacteur</th>
+                <th>Commentaires</th>
+                <th>Modifier</th>
+                <th>Supprimer</th>
+            </tr>
+HTML;
+        if(!$articles){
+            $html .= <<<HTML
+            </table>
+            <p>Aucun article à afficher</p>
+HTML;
+        } else {
+            foreach ($articles as $article) {
+                $category = Category::getCategory($article->idCategory);
+                $user = User::getUser($article->idUser);
+                $html .= <<<HTML
+                <tr>
+                    <td>{$article->titleArticle}</td>
+                    <td>{$category->lblCategory}</td>
+                    <td>{$article->datetimeArticle}</td>
+                    <td>{$user->nicknameUser}</td>
+                    <td><a href="comments.php?idA={$article->idArticle}">Commentaires</a></td>
+                    <td><a href="?id={$article->idArticle}&a=e">Modifier</a></td>
+                    <td><a href="?id={$article->idArticle}&a=d">Supprimer</a></td>
+                </tr>
+HTML;
+            }
+
+            $html .= "</table>";
+        }
+
+        return $html;
+    }
+
+    public function displayArticlesPerCategory(){
+        $content = str_replace('src="../images/', 'src="images/', $this->contentArticle);
+        $datetime = strftime("le %d/%m/%Y à %T ", strtotime($this->datetimeArticle));
+        $user = User::getUser($this->idUser);
+        $auteur = $user ? $user->nicknameUser : "Auteur inconnu";
+        $html = <<<HTML
+        <div>
+            <h2>{$this->titleArticle}</h2>
+            <div>
+                $content
+            </div>
+            <div>Publié $datetime par $auteur</div>
+            <p><a href="articles.php?id={$this->idArticle}">Lire</a></p>
+        </div>
+HTML;
+
+        return $html;
+    }
+
+
 	public static function formRedacArticle($data = array(), $info = "") {
 
         $title = isset($data['title']) ? $data['title'] : "";
         $content = isset($data['content']) ? $data['content'] : "";
         $category = isset($data['category']) ? $data['category'] : null;
+
+        $title = htmlentities($title);
 
         $categorys = Category::displayArticleCategorys($category);
         $html = <<<HTML
@@ -128,8 +252,8 @@ class Article {
                 });
             </script>
             <form action="" method="post">
-            $info
-                <input type="text" placeholder="Titre de l'article" name="title" value='$title'>
+                $info
+                <input type="text" placeholder="Titre de l'article" name="title" value="$title">
                 <textarea class="wysiwyg" name="content">$content</textarea>
                 <fieldset>
                     <legend>Catégorie</legend>
@@ -154,47 +278,135 @@ HTML;
 			return false;
 		}
 
-		$pdo = $bdd->prepare("INSERT INTO article VALUES(NULL, ?, ?, ?, ?)");
+		$pdo = $bdd->prepare("INSERT INTO article VALUES(NULL, ?, ?, NOW(), ?, ?)");
 		$pdo->execute(array($data['title'], $data['content'], $data['category'], $_SESSION['user']->idUser));
 
 		return true;
 	}
 
-	public static function displayArticles(){
-		$articles = Article::getArticles();
+    public function formEditArticle($data = array(), $info = ""){
+        $title = isset($data['title']) ? $data['title'] : $this->titleArticle;
+        $content = isset($data['content']) ? $data['content'] : $this->contentArticle;
+        $category = isset($data['category']) ? $data['category'] : $this->idCategory;
 
-		$html = <<<HTML
-		<a href="?a=a">Rédiger un article</a>
-		<table>
-			<tr>
-				<th>Titre</th>
-				<th>Catégorie</th>
-				<th>Rédacteur</th>
-				<th>Modifier</th>
-				<th>Supprimer</th>
-			</tr>
+        $title = htmlentities($title);
+
+        $categorys = Category::displayArticleCategorys($category);
+        $html = <<<HTML
+            <script type="text/javascript" src="js/tinymce/tinymce.min.js"></script>
+            <script>
+                tinymce.init({
+                    mode: "specific_textareas",
+                    editor_selector: "wysiwyg",
+                    language: "fr_FR",
+                    height: 200,
+                    image_title: true,
+
+                    images_upload_url: 'postAcceptor.php',
+                    file_picker_types: 'image',
+                    plugins: [
+                        "advlist autolink lists link image imagetools charmap preview",
+                        "searchreplace  fullscreen",
+                        "media table contextmenu paste imagetools textcolor"
+                    ],
+                    toolbar: "insertfile undo redo | styleselect | forecolor backcolor | bold italic underline | alignleft aligncenter alignright alignjustify | bullist numlist outdent indent | link image",
+                    image_advtab: true,
+                    file_picker_callback: function(cb, value, meta) {
+                        var input = document.createElement('input');
+                        input.setAttribute('type', 'file');
+                        input.setAttribute('accept', 'image/*');
+
+                        input.onchange = function() {
+                          var file = this.files[0];
+
+                          var id = 'blobid' + (new Date()).getTime();
+                          var blobCache = tinymce.activeEditor.editorUpload.blobCache;
+                          var blobInfo = blobCache.create(id, file);
+                          blobCache.add(blobInfo);
+
+                          cb(blobInfo.blobUri(), { title: file.name });
+                        };
+
+                        input.click();
+                    }
+                });
+            </script>
+            <form action="" method="post">
+                $info
+                <input type="text" placeholder="Titre de l'article" name="title" value="$title">
+                <textarea class="wysiwyg" name="content">$content</textarea>
+                <fieldset>
+                    <legend>Catégorie</legend>
+                    $categorys
+                </fieldset>
+
+                <input type="submit" name="formEditArticle" value="Modifier">
+            </form>
 HTML;
+        return $html;
+    }
 
-		foreach ($articles as $article) {
-			$category = Category::getCategory($article->idCategory);
-			$user = User::getUser($article->idUser);
-			$html .= <<<HTML
-			<tr>
-				<td>{$article->titleArticle}</td>
-				<td>{$category->lblCategory}</td>
-				<td>{$user->nicknameUser}</td>
-				<th><a href="?id={$article->idArticle}&a=e">Modifier</a></th>
-				<th><a href="?id={$article->idArticle}&a=d">Supprimer</a></th>
-			</tr>
+    public function editArticle($data)
+    {
+        $bdd = MyPDO::getInstance();
+
+        $pdo = $bdd->prepare("SELECT * FROM category WHERE idCategory = ?");
+        $pdo->execute(array($data['category']));
+        $res = $pdo->fetch();
+
+        if(empty($res)){
+            return false;
+        }
+
+        $pdo = $bdd->prepare("UPDATE article SET titleArticle = ?, contentArticle = ?, idCategory = ? WHERE idArticle = ?");
+        $pdo->execute(array($data['title'], $data['content'], $data['category'], $this->idArticle));
+
+        return true;
+    }
+
+    public function formDeleteArticle() {
+        $html = <<<HTML
+        <form action="" method="post">
+            <p>Supprimer l'article {$this->nameArticle} ?</p>
+            <input type="submit" name="formDeleteArticle" value="Confirmer">
+            <input type="submit" name="cancelDeleteArticle" value="Annuler">
+        </form>
 HTML;
-		}
+        return $html;
+    }
+
+    public function deleteArticle(){
+        $bdd = MyPDO::getInstance();
+
+        $pdo = $bdd->prepare("DELETE FROM article WHERE idArticle = ?");
+        $pdo->execute(array($this->idArticle));
+
+        return true;
+    }
+
+    public function displayComment(){
+        $comments = Comment::getCommentsPerArticle($this->idArticle);
+
+        $html = "";
+
+        if($comments){
+            foreach ($comments as $comment) {
+                $content = nl2br($comment->contentComment);
+                $datetime = strftime("le %d/%m/%Y à %T ", strtotime($comment->datetimeComment));
+                $user = User::getUser($comment->idUser);
+                $html .= <<<HTML
+                <div>
+                    <p>$content</p>
+                    <span>Ecrit par {$user->nicknameUser} $datetime</span>
+                </div>
+HTML;
+            }
+        } else {
+            $html = "Soyez le premier à commenter";
+        }
 
 
-		$html .= "</table>";
-
-		return $html;
-	}
-
-
+        return $html;
+    }
 }
 ?>

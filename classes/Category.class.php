@@ -140,6 +140,16 @@ class Category {
 		$this->categoryChildren = $categorys;
 	}
 
+	public function getBreadcrumb(){
+		$breadcrumb = "<a href='categories.php?id=" . $this->idCategory . "'>" . $this->lblCategory . '</a>';
+		if(!is_null($this->idCategoryParent)){
+			$categoryParent = Category::getCategory($this->idCategoryParent);
+			$breadcrumb = $categoryParent->getBreadcrumb() . " > " . $breadcrumb;
+		}
+
+		return $breadcrumb;
+	}
+
 	public static function formAddCategory($data = array(), $info = ""){
 
 		$categorys = Category::getCategorys();
@@ -173,7 +183,7 @@ HTML;
 		return $html;
 	}
 
-	public static function addCategory($data = ""){
+	public static function addCategory($data){
 		if(strlen($data['lblCategory']) == 0){
 			return false;
 		}
@@ -189,6 +199,18 @@ HTML;
 		return true;
 	}
 
+	public function getIdChildren(){
+		if(!is_null($this->categoryChildren)){
+			foreach($this->categoryChildren as $categoryChild){
+				$list[] = $categoryChild->idCategory;
+				if(!is_null($categoryChild->categoryChildren)){
+					$list[] = $categoryChild->getIdChildren();
+				}
+			}
+			return $list;
+		}
+	}
+
 	public function formEditCategory($data = array(), $info = ""){
 		$categorys = Category::getCategorys();
 
@@ -199,6 +221,7 @@ HTML;
 		$select .= "<option value=''>Aucune catégorie parent</option>";
 
 		$listChildren = array();
+		$list = array();
 		foreach ($categorys as $category) {
 			if($category->idCategory !== $this->idCategory){
 				if($category->idCategoryParent == $this->idCategory){
@@ -206,7 +229,20 @@ HTML;
 						$listChildren = $category->getIdChildren();
 				}
 
-				if(!in_array($category->idCategory, $listChildren) && $category->idCategoryParent !== $this->idCategory){
+				if(!empty($listChildren)){
+					foreach ($listChildren as $value) {
+						if(is_array($value)){
+							foreach ($value as $id) {
+								$list[] = $id;
+							}
+						} else {
+							$list[] = $value;
+						}
+					}
+				}
+
+
+				if(!in_array($category->idCategory, $list) && $category->idCategoryParent !== $this->idCategory){
 					if($this->idCategoryParent == $category->idCategory){
 						$select .= "<option value=" . $category->idCategory . " selected>" . $category->lblCategory . "</option>";
 					} else {
@@ -223,57 +259,104 @@ HTML;
 			$info
 			<input type="text" name="lblCategory" placeholder="Nom de la catégorie" value=$lblCategory pattern=".{1,}">
 			$select
-			<input type="submit" name="formAddCategory" value="Modifier">
+			<input type="submit" name="formEditCategory" value="Modifier">
 		</form>
 HTML;
 		return $html;
 	}
 
-	public function getIdChildren(){
-		if(!is_null($this->categoryChildren)){
-			foreach($this->categoryChildren as $categoryChild){
-				$list[] = $categoryChild->idCategory;
-				$list[] = $categoryChild->getIdChildren();
-			}
-			return $list;
+	public function editCategory($data){
+		if(strlen($data['lblCategory']) == 0){
+			return false;
 		}
+
+		if($data['category'] == "" || !Category::getCategory($data['category'])){
+			$data['category'] = null;
+		}
+
+		$bdd = MyPDO::getInstance();
+		$pdo = $bdd->prepare("UPDATE category SET lblCategory = ?, idCategoryParent = ? WHERE idCategory = ?");
+		$pdo->execute(array($data['lblCategory'], $data['category'], $this->idCategory));
+
+		return true;
+	}
+
+	public function formDeleteCategory($info = ""){
+		$html = <<<HTML
+        <form action="" method="post">
+        	<p>En supprimant la catégorie {$this->lblCategory}, toutes les catégories enfants ainsi que leurs articles seront supprimés</p>
+            <p>Supprimer la categorie {$this->lblCategory} ?</p>
+            <input type="submit" name="formDeleteCategory" value="Confirmer">
+            <input type="submit" name="cancelDeleteCategory" value="Annuler">
+        </form>
+HTML;
+        return $html;
+	}
+
+	public function deleteCategory(){
+        $bdd = MyPDO::getInstance();
+
+        $pdo = $bdd->prepare("DELETE FROM category WHERE idCategory = ?");
+        $pdo->execute(array($this->idCategory));
+
+        return true;
 	}
 
 	public static function displayCategorys(){
 		$categorys = Category::getCategorys(true);
-		$html = "<table>";
-
-		foreach ($categorys as $category) {
-			$html .= <<<HTML
+		$html = <<<HTML
+		<a href="?a=a">Ajouter une catégorie</a>
+		<table>
 			<tr>
-				<td>{$category->lblCategory}</td>
-				<td><a href="category.php?id={$category->idCategory}&a=edit">Modifier</a></td>
-				<td><a href="category.php?id={$category->idCategory}&a=delete">Supprimer</a></td>
+				<th>Nom de la catégorie</th>
+				<th>Catégorie parent</th>
+				<th>Modifier</th>
+				<th>Supprimer</th>
 			</tr>
 HTML;
-			if(!is_null($category->categoryChildren))
-				$html .= $category->displayCategorysChildren();
-		}
+		if(!$categorys){
+            $html .= <<<HTML
+            </table>
+            <p>Aucune categorie à afficher</p>
+HTML;
+        } else {
+			foreach ($categorys as $category) {
+	            if(is_null($category->idCategoryParent)){
+	            	$lblCategoryParent = "Aucun parent";
+	            } else {
+	            	$categoryParent = Category::getCategory($category->idCategoryParent);
+	            	$lblCategoryParent = $categoryParent->lblCategory;
+	            }
 
-		$html .= "</table>";
+				$html .= <<<HTML
+				<tr>
+					<td>{$category->lblCategory}</td>
+					<td>$lblCategoryParent</td>
+					<td><a href="categorys.php?id={$category->idCategory}&a=e">Modifier</a></td>
+					<td><a href="categorys.php?id={$category->idCategory}&a=d">Supprimer</a></td>
+				</tr>
+HTML;
+				if(!is_null($category->categoryChildren))
+					$html .= $category->displayCategorysChildren();
+			}
+
+			$html .= "</table>";
+		}
 
 		return $html;
 	}
 
 	public function displayCategorysChildren(){
 		$html = "";
-
-
 		foreach ($this->categoryChildren as $categoryChild) {
 			$html .= <<<HTML
 			<tr>
 				<td>{$categoryChild->lblCategory}</td>
-				<td><a href="category.php?id={$categoryChild->idCategory}&a=edit">Modifier</a></td>
-				<td><a href="category.php?id={$categoryChild->idCategory}&a=delete">Supprimer</a></td>
+				<td>{$this->lblCategory}</td>
+				<td><a href="categorys.php?id={$categoryChild->idCategory}&a=e">Modifier</a></td>
+				<td><a href="categorys.php?id={$categoryChild->idCategory}&a=d">Supprimer</a></td>
 			</tr>
 HTML;
-
-			//$html .= "<tr><td>" . $categoryChild->lblCategory . "</td><td><a href='?category.php?id=" . $categoryChild->idCategory . "&a=edit>" . "</tr>";
 			if(!is_null($categoryChild->categoryChildren))
 				$html .= $categoryChild->displayCategorysChildren();
 
@@ -286,14 +369,19 @@ HTML;
 		$categorys = Category::getCategorys(true);
 		$html = "<ul>";
 
-		foreach ($categorys as $category) {
-			$html .= "<li><a href='category.php?id=" . $category->idCategory . "'>" . $category->lblCategory . "</a></li>";
-			if(!is_null($category->categoryChildren))
-				$html .= $category->displayMenuCategorysChildren();
+		if($categorys){
+
+			foreach ($categorys as $category) {
+				$html .= "<li><a href='categories.php?id=" . $category->idCategory . "'>" . $category->lblCategory . "</a></li>";
+				if(!is_null($category->categoryChildren))
+					$html .= $category->displayMenuCategorysChildren();
+
+			}
 
 		}
 
 		$html .= "</ul>";
+
 
 		return $html;
 	}
@@ -302,7 +390,7 @@ HTML;
 		$html = "<ul>";
 
 		foreach ($this->categoryChildren as $categoryChild) {
-			$html .= "<li><a href='category.php?id=" . $categoryChild->idCategory . "'>" . $categoryChild->lblCategory . "</a></li>";
+			$html .= "<li><a href='categories.php?id=" . $categoryChild->idCategory . "'>" . $categoryChild->lblCategory . "</a></li>";
 			if(!is_null($categoryChild->categoryChildren))
 				$html .= $categoryChild->displayMenuCategorysChildren();
 		}
@@ -350,6 +438,63 @@ HTML;
 		return $html;
 	}
 
+	public static function displayForum($idCategory = null)
+	{
+		if(is_null($idCategory)){
+			$categories = Category::getCategorys(true);
+			$articles = false;
+		} else {
+			$categoryParent = Category::getCategory($idCategory);
+			$categories = $categoryParent->categoryChildren;
+			$articles = Article::getArticlesPerCategory(array($categoryParent->idCategory));
+		}
 
+		$html = "";
+
+		if(!is_null($categories)){
+			$html .= <<<HTML
+			<table>
+				<tr>
+					<th>Catégorie</th>
+				</tr>
+HTML;
+			foreach ($categories as $category) {
+				$html .= <<<HTML
+				<tr>
+					<td><a href="?idC={$category->idCategory}">{$category->lblCategory}</a></td>
+				</tr>
+HTML;
+			}
+
+			$html .= "</table>";
+		}
+
+		if($articles){
+			$html .= <<<HTML
+			<table>
+				<tr>
+					<th>Articles</th>
+				</tr>
+HTML;
+			foreach ($articles as $article) {
+				$html .= <<<HTML
+				<tr>
+					<td><a href="?idA={$article->idArticle}">{$article->titleArticle}</a></td>
+				</tr>
+HTML;
+			}
+
+			$html .= "</table>";
+		}
+
+
+		return $html;
+		/*
+		if(!is_null($idCategory)){
+			$req = " WHERE idCategoryParent = ?";
+		} else {
+
+		}*/
+	}
 }
 ?>

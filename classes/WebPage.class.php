@@ -151,6 +151,8 @@ HTML
         <ul>
             <li><a href="index.php">Accueil</a></li>
             $categorys
+            <li><a href="privatemessages.php">Messages</a></li>
+            <li><a href="forum.php">Forum</a></li>
             <li><a href="profile.php">Profil</a></li>
             <li><a href="administration/index.php">Administration</a></li>
             <li><a href="logout.php">Déconnexion</a></li>
@@ -161,6 +163,8 @@ HTML;
         <ul>
             <li><a href="index.php">Accueil</a></li>
             $categorys
+            <li><a href="privatemessages.php">Messages</a></li>
+            <li><a href="forum.php">Forum</a></li>
             <li><a href="profile.php">Profil</a></li>
             <li><a href="logout.php">Déconnexion</a></li>
         </ul>
@@ -171,6 +175,7 @@ HTML;
         <ul>
             <li><a href="index.php">Accueil</a></li>
             $categorys
+            <li><a href="forum.php">Forum</a></li>
             <li><a href="connexion.php">Connexion</a></li>
             <li><a href="subscribe.php">Inscription</a></li>
         </ul>
@@ -183,16 +188,13 @@ HTML;
         if(isset($_SESSION['connected']) && $_SESSION['connected']){
             $html = "<ul>";
             $html .= "<li><a href='..'>Site</a></li>\n";
-            if($_SESSION['user']->redacArticle || $_SESSION['user']->editOwnArticle || $_SESSION['user']->deleteOwnArticle){
+            if($_SESSION['user']->redacArticle || $_SESSION['user']->editOwnArticle || $_SESSION['user']->deleteOwnArticle || $_SESSION['user']->editComment || $_SESSION['user']->deleteComment){
                 $html .= "<li><a href='articles.php'>Articles</a></li>\n";
             }
 
             if($_SESSION['user']->isAdministrator){
-                $html .= "<li><a href='category.php'>Catégories</a></li>\n";
-            }
-
-            if($_SESSION['user']->editComment || $_SESSION['user']->deleteComment){
-                $html .= "<li><a href='comments.php'>Commentaires</a></li>\n";
+                $html .= "<li><a href='categorys.php'>Catégories</a></li>\n";
+                $html .= "<li><a href='users.php'>Membres</a></li>\n";
             }
 
             if($_SESSION['user']->isAdministrator){

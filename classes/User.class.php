@@ -121,6 +121,68 @@ class User {
         return $res;
     }
 
+    public static function getUserByNickName($nicknameUser) {
+        $bdd = MyPDO::getInstance();
+
+        $pdo = $bdd->prepare("SELECT * FROM user WHERE nicknameUser = ?");
+        $pdo->execute(array($nicknameUser));
+        $pdo->setFetchMode(PDO::FETCH_CLASS, __CLASS__);
+
+        $res = $pdo->fetch();
+
+        if(empty($res)){
+            return false;
+        }
+
+        return $res;
+    }
+
+    public static function getUsers() {
+        $bdd = MyPDO::getInstance();
+
+        $pdo = $bdd->prepare("SELECT * FROM user");
+        $pdo->execute();
+        $pdo->setFetchMode(PDO::FETCH_CLASS, __CLASS__);
+
+        $res = $pdo->fetchAll();
+
+        if(empty($res)){
+            return false;
+        }
+
+        return $res;
+    }
+
+    public static function listUsers(){
+        $users = self::getUsers();
+
+        $html = <<<HTML
+        <table>
+            <tr>
+                <th>ID de l'utilisateur</th>
+                <th>Pseudo</th>
+                <th>E-mail</th>
+                <th>Modfier</th>
+                <th>Supprimer</th>
+            </tr>
+HTML;
+
+        foreach ($users as $user) {
+            $html .= <<<HTML
+            <tr>
+                <td>{$user->idUser}</td>
+                <td>{$user->nicknameUser}</td>
+                <td>{$user->emailUser}</td>
+                <td><a href=?id={$user->idUser}&a=e>Modifier</a></td>
+                <td><a href=?id={$user->idUser}&a=d>Supprimer</a></td>
+            </tr>
+HTML;
+        }
+
+        $html .= "</table>";
+        return $html;
+    }
+
 	public static function formConnection($infos = "", $data = array()){
 		$nickname = isset($data['nickname']) ? $data['nickname'] : "";
 		$html = <<<HTML
@@ -555,136 +617,39 @@ HTML;
 		return true;
 	}
 
+    public function formSendPM($data = array(), $info = ""){
+        $receiver = isset($data['receiver']) ? $data['receiver'] : "";
+        $title = isset($data['title']) ? $data['title'] : "";
+        $content = isset($data['content']) ? $data['content'] : "";
 
-	/**
-	 * Rédiger un article
-	 * @access public
-	 * @param array $data Contient lesinformations de l'article
-	 * @return void
-	 */
+        $html = <<<HTML
+        <form action="" method="post">
+            $info
+            <input type="text" name="receiver" value="$receiver" placeholder="Destinataire">
+            <input type="text" name="title" value="$title" placeholder="Objet">
+            <textarea name="content">$content</textarea>
+            <input type="submit" name="formSendPM">
+        </form>
+HTML;
 
-	public  function redacArticle($data) {
+        return $html;
+    }
 
-	}
+    public function formReplyPM($data = array(), $info = ""){
+        $title = isset($data['title']) ? $data['title'] : "RE: " . $data['defaultTitle'];
+        $content = isset($data['content']) ? $data['content'] : "";
 
+        $html = <<<HTML
+        <form action="" method="post">
+            $info
+            <input type="text" name="title" value="$title" placeholder="Objet">
+            <textarea name="content">$content</textarea>
+            <input type="submit" name="formReplyPM" value="Répondre">
+        </form>
+HTML;
 
-	/**
-	 * Editer son article
-	 * @access public
-	 * @param array $data Contient les nouvelles informations de l'article
-	 * @return void
-	 */
-
-	public  function editOwnArticle($data) {
-
-	}
-
-
-	/**
-	 * Supprimer son article
-	 * @access public
-	 * @param int $idArticle ID de l'article à supprimer
-	 * @return void
-	 */
-
-	public  function deleteOwnArticle($idArticle) {
-
-	}
-
-
-	/**
-	 * Rédiger un commentaire
-	 * @access public
-	 * @param array $data Contient les informationsdu commentaire
-	 * @return void
-	 */
-
-	public  function redacComment($data) {
-
-	}
-
-
-	/**
-	 * Editer le commentaire d'un autre utilisateur
-	 * @access public
-	 * @param array $data Contient les nouvelles informations du commentaire
-	 * @return void
-	 */
-
-	public  function editComment($data) {
-
-	}
-
-
-	/**
-	 * Supprimer le commentaire d'un autre utilisateur
-	 * @access public
-	 * @param int $idComment ID du commentaire à supprimer
-	 * @return void
-	 */
-
-	public  function deleteComment($idComment) {
-
-	}
-
-
-	/**
-	 * Ecrire un message privé
-	 * @access public
-	 * @param array $data Contient les informations du message privé envoyé
-	 */
-
-	public  function sendPrivateMessage($data) {
-
-	}
-
-
-	/**
-	 * Lire un message privé
-	 * @access public
-	 * @param int $idPrivateMessage ID du message privé à lire
-	 * @return PrivateMessage
-	 */
-
-	public  function readPrivateMessage($idPrivateMessage) {
-
-	}
-
-
-	/**
-	 * Afficher le profil d'un utilisateur
-	 * @access public
-	 * @param int $idUser ID de l'utilisateur
-	 * @return User
-	 */
-
-	public  function showProfile($idUser) {
-
-	}
-
-
-	/**
-	 * @access public
-	 * @param PrivateMessage $pm
-	 * @param String $receiver
-	 * @return Bool
-	 */
-
-	public  function sendPM(PrivateMessage $pm, $receiver) {
-
-	}
-
-
-	/**
-	 * @access public
-	 * @param int $idPM
-	 * @return PrivateMessage
-	 */
-
-	public final  function getPM($idPM) {
-
-	}
-
+        return $html;
+    }
 
 }
 ?>

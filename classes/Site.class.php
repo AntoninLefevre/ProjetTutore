@@ -1,7 +1,5 @@
 <?php
 
-require_once("MyPDO.class.php");
-
 final class Site {
 
     private static $_optionSite = null;
@@ -20,10 +18,8 @@ final class Site {
                 $pdo = $bdd->prepare("SELECT * FROM optionSite");
                 $pdo->execute();
                 foreach ($pdo->fetchAll() as $value) {
-                    //var_dump($value);
                     self::$_optionSite[$value['nameOptionSite']] = $value['valueOptionSite'];
                 }
-                //self::$_optionSite = $pdo->fetchAll();
             }
             else {
                 return false;

@@ -24,7 +24,7 @@ class Administrator extends User {
 		$this->isAdministrator = $user->isAdministrator;
 	}
 
-	public function formOptionsSite($data = array(), $infos = ""){
+	public static function formOptionsSite($data = array(), $infos = ""){
 		if(sizeof($data) == 0)
 			$data = Site::getOptions();
 
@@ -34,6 +34,18 @@ class Administrator extends User {
 		$articlesPerPage = $data['articlesPerPage'];
 		$commentsPerPage = $data['commentsPerPage'];
 		$theme = $data['theme'];
+
+		$listThemes = "<select name='theme'>";
+
+		foreach (scandir('./../style/') as $dir) {
+		    if(is_dir("./../style/" . $dir) && $dir != "." && $dir != ".."){
+		        $listThemes .= <<<HTML
+		        <option value="$dir">$dir</option>
+HTML;
+		    }
+		}
+
+		$listThemes .= "</select>";
 		$html = <<<HTML
 		<form action="" method="post">
 			<input type="text" name="siteName" placeholder="Nom du site" value="$siteName">
@@ -41,7 +53,7 @@ class Administrator extends User {
 			<input type="text" name="adminEmail" placeholder="Nom du site" value="$adminEmail">
 			<input type="number" name="articlesPerPage" placeholder="Nom du site" value="$articlesPerPage">
 			<input type="number" name="commentsPerPage" placeholder="Nom du site" value="$commentsPerPage">
-			<input type="text" name="theme" placeholder="Nom du site" value="$theme">
+			$listThemes
 			<input type="submit" name="formOptionsSite">
 		</form>
 HTML;
@@ -50,8 +62,18 @@ HTML;
 
 
 
-	public function editOptionSite($data){
+	public static function editOptionSite($data){
+		$bdd = MyPDO::getInstance();
 
+		$keys = array_keys($data);
+
+		$pdo = $bdd->prepare("UPDATE optionsite SET valueOptionSite = ? WHERE nameOptionSite = ?");
+
+		foreach ($keys as $key) {
+			$pdo->execute(array($data[$key], $key));
+		}
+
+		return true;
 	}
 
 	/**
@@ -65,6 +87,28 @@ HTML;
 
 	}*/
 
+	public static function formEditProfileUser($user, $info = ""){
+		$redacArticle = $user->redacArticle ? "checked" : "";
+		$editOwnArticle = $user->editOwnArticle ? "checked" : "";
+		$deleteOwnArticle = $user->deleteOwnArticle ? "checked" : "";
+		$editComment = $user->editComment ? "checked" : "";
+		$deleteComment = $user->deleteComment ? "checked" : "";
+		$html = <<<HTML
+		<form action="" method="post">
+			$info
+			<input type="text" name="nickname" placeholder="Pseudo" value="{$user->nicknameUser}">
+			<input type="text" name="email" placeholder="E-mail" value="{$user->emailUser}"0>
+			<label>Rédiger un article: <input type="checkbox" name="redacArticle" $redacArticle></label>
+			<label>Modifier ses articles: <input type="checkbox" name="editOwnArticle" $editOwnArticle></label>
+			<label>Supprimer ses articles: <input type="checkbox" name="deleteOwnArticle" $deleteOwnArticle></label>
+			<label>Modifier des commentaires: <input type="checkbox" name="editComment" $editComment></label>
+			<label>Supprimer des commentaires: <input type="checkbox" name="deleteComment" $deleteComment></label>
+			<input type="submit" value="Modifier" name="formEditProfileUser">
+		</form>
+HTML;
+
+		return $html;
+	}
 
 	/**
 	 * Modifie les information d'un utilisateur
@@ -73,8 +117,42 @@ HTML;
 	 * @return void
 	 */
 
-	public  function editProfileUser($data) {
+	public static function editProfileUser($data, $idUser) {
+		$redacArticle = isset($data['redacArticle']) ? 1 : 0;
+		$editOwnArticle = isset($data['editOwnArticle']) ? 1 : 0;
+		$deleteOwnArticle = isset($data['deleteOwnArticle']) ? 1 : 0;
+		$editComment = isset($data['editComment']) ? 1 : 0;
+		$deleteComment = isset($data['deleteComment']) ? 1 : 0;
 
+		$bdd = MyPDO::getInstance();
+
+		$pdo = $bdd->prepare("UPDATE user SET nicknameUser = ?, emailUser = ?, redacArticle = ?, editOwnArticle = ?, deleteOwnArticle = ?, editComment = ?, deleteComment = ? WHERE idUser = ?");
+
+		$pdo->execute(array($data['nickname'], $data['email'], $redacArticle, $editOwnArticle, $deleteOwnArticle, $editComment, $deleteComment, $idUser));
+
+		return true;
+	}
+
+	public static function formDeleteProfileUser($user, $info = ""){
+		$html = <<<HTML
+		<form action="" method="post">
+			$info
+			<p>Voulez-vous vraiment supprimer {$user->nicknameUser} ?</p>
+			<input type="submit" value="Supprimer" name="formDeleteProfileUser">
+			<input type="submit" value="Annuler" name="cancelDeleteProfileUser">
+		</form>
+HTML;
+
+		return $html;
+	}
+
+	public static function deleteProfileUser($idUser){
+		$bdd = MyPDO::getInstance();
+
+		$pdo = $bdd->prepare("DELETE FROM user WHERE idUser = ?");
+		$pdo->execute(array($idUser));
+
+		return true;
 	}
 
 

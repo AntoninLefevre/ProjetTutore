@@ -30,37 +30,51 @@ if(isset($_GET['a'])){
         }
         $wp->appendContent($formRedacArticle);
     } elseif($_GET['a'] =='e') {
-        if(isset($_POST['formEditArticle'])){
-            if(isset($_POST['title']) && isset($_POST['content']) && isset($_POST['category']) && isset($_POST['id'])){
-                $res = Article::editArticle($_POST);
-                if(!$res){
-                    $formEditArticle = Article::formEditArticle($_POST, "Erreur lors de la modification de l'article");
-                } else {
-                    $formEditArticle = Article::formEditArticle($_POST, "L'article a été modifié");
-                }
+        if(isset($_GET['id'])){
+            $article = Article::getArticle($_GET['id']);
+            if(!$article){
+                header('Location: articles.php');
             } else {
-                $formEditArticle = Article::formEditArticle($_POST, "Erreur lors de la modification de l'article");
+                if(isset($_POST['formEditArticle'])){
+                    if(isset($_POST['title']) && isset($_POST['content']) && isset($_POST['category'])){
+                        $res = $article->editArticle($_POST);
+                        if(!$res){
+                            $formEditArticle = $article->formEditArticle($_POST, "Erreur lors de la modification de l'article");
+                        } else {
+                            $formEditArticle = $article->formEditArticle($_POST, "L'article a été modifié");
+                        }
+                    } else {
+                        $formEditArticle = $article->formEditArticle($_POST, "Erreur lors de la modification de l'article");
+                    }
+                } else {
+                    $formEditArticle = $article->formEditArticle();
+                }
+                $wp->appendContent($formEditArticle);
             }
         } else {
-            $formEditArticle = Article::formEditArticle();
+            header('Location: articles.php');
         }
-        $wp->appendContent($formEditArticle);
-    } elseif($_GET['a'] =='d') {
-        if(isset($_POST['formDeleteArticle'])){
-            if(isset($_POST['id'])){
-                $res = Article::deleteArticle($_POST['id']);
-                if(!$res){
-                    $formDeleteArticle = Article::formDeleteArticle("Erreur lors de la suppression de l'article");
-                } else {
+    } elseif($_GET['a'] == 'd') {
+        if(isset($_GET['id'])){
+            $article = Article::getArticle($_GET['id']);
+            if(!$article){
+                header('Location: articles.php');
+            } else {
+                if(isset($_POST['formDeleteArticle'])){
+                    $article->deleteArticle();
                     $formDeleteArticle = Article::displayArticles("L'article a été supprimé");
+                } elseif(isset($_POST['cancelDeleteArticle'])){
+                    header('Location: articles.php');
+                } else {
+                    $formDeleteArticle = $article->formDeleteArticle();
                 }
-            } else {
-                $formDeleteArticle = Article::formDeleteArticle("Erreur lors de la suppression de l'article");
+                $wp->appendContent($formDeleteArticle);
             }
         } else {
-            $formDeleteArticle = Article::displayArticles();
+            header('Location: articles.php');
         }
-        $wp->appendContent($formDeleteArticle);
+    } else {
+        header('Location: articles.php');
     }
 } else {
     $wp->appendContent(Article::displayArticles());
