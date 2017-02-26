@@ -12,3 +12,15 @@ $configsql = parse_ini_file("configsql.ini");
 MyPDO::setConfiguration('mysql:host='.$configsql['host'].';dbname='.$configsql['dbname'].';charset=utf8', $configsql['username'], $configsql['password']);
 
 $siteOptions = Site::getOptions();
+
+User::startSession();
+
+
+if(!isset($_SESSION['user']) && isset($_COOKIE['user'])){
+    $cookie = explode("----", $_COOKIE['user']);
+    $res = User::userByCookie($cookie);
+    if($res)
+        $res->saveIntoSession();
+}
+
+$user = User::createFromSession();

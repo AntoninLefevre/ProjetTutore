@@ -41,10 +41,16 @@ class WebPage {
 
 	public  function __construct($title = null, $menu = true) {
 		$this->setTitle($title);
-        if($menu)
+        if($menu){
             $this->setMenu();
-        else
+            $this->setCss();
+            $this->setJs();
+        }
+        else{
             $this->setAdminMenu();
+            $this->setCss(true);
+            $this->setJs(true);
+        }
 	}
 
 
@@ -142,6 +148,40 @@ HTML
 		$this->body .= $content;
 	}
 
+    public function setCss($admin = false){
+        $siteOptionsTheme = Site::getOptions()['theme'];
+        if($admin)
+            $path = "../" . "style/" . $siteOptionsTheme . "/";
+        else
+            $path = "style/" . $siteOptionsTheme . "/";
+        $files = parse_ini_file($path . "files.ini");
+        if(array_key_exists('css', $files)){
+            $filesCss = parse_ini_file($path . "files.ini")['css'];
+            if(!is_null($filesCss)){
+                foreach ($filesCss as $fileCss) {
+                    $this->appendCssUrl($path . $fileCss);
+                }
+            }
+        }
+    }
+
+    public function setJs($admin = false){
+        $siteOptionsTheme = Site::getOptions()['theme'];
+        if($admin)
+            $path = "../" . "style/" . $siteOptionsTheme . "/";
+        else
+            $path = "style/" . $siteOptionsTheme . "/";
+        $files = parse_ini_file($path . "files.ini");
+        if(array_key_exists('js', $files)){
+            $filesJs = $files['js'];
+            if(!is_null($filesJs)){
+                foreach ($filesJs as $fileJs) {
+                    $this->appendCssUrl($path . $fileJs);
+                }
+            }
+        }
+    }
+
     public function setMenu(){
         User::startSession();
         $categorys = Category::displayMenuCategorys();
@@ -155,6 +195,7 @@ HTML
             <li><a href="forum.php">Forum</a></li>
             <li><a href="profile.php">Profil</a></li>
             <li><a href="administration/index.php">Administration</a></li>
+            <li><a href="contact.php">Contact</a></li>
             <li><a href="logout.php">Déconnexion</a></li>
         </ul>
 HTML;
@@ -166,6 +207,7 @@ HTML;
             <li><a href="privatemessages.php">Messages</a></li>
             <li><a href="forum.php">Forum</a></li>
             <li><a href="profile.php">Profil</a></li>
+            <li><a href="contact.php">Contact</a></li>
             <li><a href="logout.php">Déconnexion</a></li>
         </ul>
 HTML;
@@ -178,6 +220,7 @@ HTML;
             <li><a href="forum.php">Forum</a></li>
             <li><a href="connexion.php">Connexion</a></li>
             <li><a href="subscribe.php">Inscription</a></li>
+            <li><a href="contact.php">Contact</a></li>
         </ul>
 HTML;
         }

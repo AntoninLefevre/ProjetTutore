@@ -164,11 +164,33 @@ HTML;
 		if($comments){
 			foreach ($comments as $comment) {
 				$contentComment = nl2br($comment->contentComment);
+				$td = <<<HTML
+					<td>$contentComment</td>
+HTML;
+
+				if($_SESSION['user']->editComment || $_SESSION['user']->isAdministrator){
+					$td .= <<<HTML
+					<td><a href="?idA=$idArticle&idC={$comment->idComment}&a=e">Modifier</a></td>
+HTML;
+				} else {
+					$td .= <<<HTML
+					<td>Modifier</td>
+HTML;
+				}
+
+				if($_SESSION['user']->deleteComment || $_SESSION['user']->isAdministrator){
+					$td .= <<<HTML
+					<td><a href="?idA=$idArticle&idC={$comment->idComment}&a=d">Supprimer</a></td>
+HTML;
+				} else {
+					$td .= <<<HTML
+					<td>Supprimer</td>
+HTML;
+				}
+
 				$html .= <<<HTML
 				<tr>
-					<td>$contentComment</td>
-					<td><a href="?idA=$idArticle&idC={$comment->idComment}&a=e">Modifier</a></td>
-					<td><a href="?idA=$idArticle&idC={$comment->idComment}&a=d">Supprimer</a></td>
+					$td
 				</tr>
 HTML;
 			}

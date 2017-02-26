@@ -489,12 +489,6 @@ HTML;
 
 
 		return $html;
-		/*
-		if(!is_null($idCategory)){
-			$req = " WHERE idCategoryParent = ?";
-		} else {
-
-		}*/
 	}
 }
 ?>

@@ -1,0 +1,3 @@
+<Files configsql.ini>
+Deny from all
+</Files>

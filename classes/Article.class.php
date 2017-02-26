@@ -164,15 +164,45 @@ HTML;
             foreach ($articles as $article) {
                 $category = Category::getCategory($article->idCategory);
                 $user = User::getUser($article->idUser);
-                $html .= <<<HTML
-                <tr>
+                $td = <<<HTML
                     <td>{$article->titleArticle}</td>
                     <td>{$category->lblCategory}</td>
                     <td>{$article->datetimeArticle}</td>
                     <td>{$user->nicknameUser}</td>
-                    <td><a href="comments.php?idA={$article->idArticle}">Commentaires</a></td>
-                    <td><a href="?id={$article->idArticle}&a=e">Modifier</a></td>
-                    <td><a href="?id={$article->idArticle}&a=d">Supprimer</a></td>
+HTML;
+
+                if($_SESSION['user']->editComment || $_SESSION['user']->deleteComment || $_SESSION['user']->isAdministrator){
+                    $td .= <<<HTML
+                        <td><a href="comments.php?idA={$article->idArticle}">Commentaires</a></td>
+HTML;
+                } else {
+                    $td .= <<<HTML
+                        <td>Commentaires</td>
+HTML;
+                }
+
+                if($_SESSION['user']->editOwnArticle && $article->idUser == $_SESSION['user']->idUser || $_SESSION['user']->isAdministrator){
+                    $td .= <<<HTML
+                        <td><a href="?id={$article->idArticle}&a=e">Modifier</a></td>
+HTML;
+                } else {
+                    $td .= <<<HTML
+                        <td>Modifier</td>
+HTML;
+                }
+
+                if($_SESSION['user']->deleteOwnArticle && $article->idUser == $_SESSION['user']->idUser || $_SESSION['user']->isAdministrator){
+                    $td .= <<<HTML
+                        <td><a href="?id={$article->idArticle}&a=d">Supprimer</a></td>
+HTML;
+                } else {
+                    $td .= <<<HTML
+                        <td>Supprimer</td>
+HTML;
+                }
+                $html .= <<<HTML
+                <tr>
+                    $td
                 </tr>
 HTML;
             }
@@ -367,7 +397,7 @@ HTML;
     public function formDeleteArticle() {
         $html = <<<HTML
         <form action="" method="post">
-            <p>Supprimer l'article {$this->nameArticle} ?</p>
+            <p>Supprimer l'article {$this->titleArticle} ?</p>
             <input type="submit" name="formDeleteArticle" value="Confirmer">
             <input type="submit" name="cancelDeleteArticle" value="Annuler">
         </form>

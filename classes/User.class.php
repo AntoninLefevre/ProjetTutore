@@ -190,12 +190,53 @@ HTML;
 				$infos
 				<input type="text" placeholder="Pseudo" name="nickname" value="$nickname" required>
 				<input type="password" placeholder="Mot de passe" name="password" required>
+                <label><input type="checkbox" name="remember">Se souvenir de moi</label>
 				<input type="submit" value="Se connecter" name="formConnection">
 				<a href="resetPassword.php">Mot de passe oublié ?</a>
 			</form>
 HTML;
 		return $html;
 	}
+
+    public static function userByCookie($data){
+        $bdd = MyPDO::getInstance();
+
+        $pdo = $bdd->prepare("SELECT * FROM user WHERE idUser = ?");
+        $pdo->setFetchMode(PDO::FETCH_CLASS, __CLASS__);
+        $pdo->execute([$data[0]]);
+
+        $res = $pdo->fetch();
+
+        if(empty($res)){
+            setcookie("user", '', time() - 3600, '/', '', false, true);
+            return false;
+        }
+
+        $key = hash("sha256", $res->nicknameUser . $res->emailUser);
+
+        if($key == $data[1]){
+            return User::createFromCookie($data[0]);
+        } else {
+            setcookie("user", '', time() - 3600, '/', '', false, true);
+        }
+    }
+
+    public static function createFromCookie($idUser){
+        $bdd = MyPDO::getInstance();
+
+        $pdo = $bdd->prepare("SELECT idUser, nicknameUser, emailUser, validUser, redacArticle, editOwnArticle, deleteOwnArticle, editComment, deleteComment, isAdministrator FROM user WHERE idUser = ?");
+        $pdo->setFetchMode(PDO::FETCH_CLASS, __CLASS__);
+        $pdo->execute([$idUser]);
+        $res = $pdo->fetch();
+
+        if($res->isAdministrator){
+            $res = new Administrator($res);
+        }
+        setcookie("user", $res->idUser . '----' . hash("sha256", $res->nicknameUser . $res->emailUser), time() + 3600 * 24 * 15, '/', '', false, true);
+        self::startSession();
+        $_SESSION['connected'] = true;
+        return $res;
+    }
 
 
 	/**
@@ -213,8 +254,8 @@ HTML;
 		$login = $pdo->prepare( 'SELECT idUser, nicknameUser, emailUser, validUser, redacArticle, editOwnArticle, deleteOwnArticle, editComment, deleteComment, isAdministrator
 								FROM user
 								WHERE nicknameUser = ? AND passwordUser = ?');
+        $login->setFetchMode(PDO::FETCH_CLASS, __CLASS__);
 		$login->execute(array($data['nickname'], hash("sha256", $data['password'])));
-		$login->setFetchMode(PDO::FETCH_CLASS, __CLASS__);
 		$res = $login->fetch();
 		if(empty($res)){
 			return false;
@@ -224,6 +265,9 @@ HTML;
 			if($res->isAdministrator){
 				$res = new Administrator($res);
 			}
+            if(isset($data['remember'])){
+                setcookie("user", $res->idUser . '----' . hash("sha256", $res->nicknameUser . $res->emailUser), time() + 3600 * 24 * 15, '/', '', false, true);
+            }
 			self::startSession();
 			$_SESSION['connected'] = true;
 			return $res;
@@ -301,6 +345,7 @@ HTML;
 		self::startSession();
 		session_destroy();
 		unset($_SESSION);
+        setcookie("user", '', time() - 3600, '/', '', false, true);
 	}
 
 
@@ -650,6 +695,40 @@ HTML;
 
         return $html;
     }
+
+	public static function formContact($data = array(), $info = ""){
+        $subject = isset($data['subject']) ? $data['subject'] : "";
+        $email = isset($data['email']) ? $data['email'] : "";
+		$message = isset($data['message']) ? $data['message'] : "";
+
+		$html = <<<HTML
+		<form action="" method="post">
+			$info
+			<input type="text" name="subject" placeholder="Objet du message" value="$subject" required>
+            <input type="email" name="email" placeholder="Adresse e-mail" value="$email" required>
+			<textarea name="message" required>$message</textarea>
+			<input type="submit" name="formContact">
+		</form>
+HTML;
+
+		return $html;
+	}
+
+	public static function contact($data){
+        if(filter_var($data['email'], FILTER_VALIDATE_EMAIL) === false){
+            return false;
+        }
+        $site = Site::getOptions();
+        $subject = "[" . $site['siteName'] . "] " . $data['subject'];
+        $boundary = "-----=".md5(rand());
+
+        $header = "From: " . $data['email'] . "\n";
+        $header.= "Reply-to: " . $data['email'] ."\n";
+        $header.= "MIME-Version: 1.0\n";
+        $header.= "Content-Type: multipart/alternative;\n boundary=" . $boundary . "\n";
+
+        return mail($site['adminEmail'], $subject , $data['message'], $header);
+	}
 
 }
 ?>

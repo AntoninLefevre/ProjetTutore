@@ -2,9 +2,7 @@
 
 require_once('autoload.inc.php');
 
-User::startSession();
 
-$user = User::createFromSession();
 
 if(isset($_POST['formEditEmail'])){
     $res = $user->editEmail($_POST['email']);
