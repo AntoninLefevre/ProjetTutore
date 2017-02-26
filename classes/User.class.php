@@ -221,6 +221,44 @@ HTML;
         }
     }
 
+    public static function genWord($taille = 5){
+        $voyelles = array('a','e','i','u','o','y','ou','oi','eu','ai');
+        $consonnes = array('z','r','t','p','q','s','d','f','g','h','j','k','l','m','w','x','c','v','b','n','pr','br','cr','bl','pl','ph');
+        $mot = '';
+        for ($i=0; $i < round($taille/2); $i++) {
+            $mot .= $voyelles[array_rand($voyelles)];
+            $mot .= $consonnes[array_rand($consonnes)];
+        }
+        return substr($mot, 0, $taille);
+    }
+
+    public static function captcha(){
+        $word = User::genWord();
+
+        $_SESSION['captcha'] = $word;
+        $long = strlen($word) * 11;
+        $larg = 30;
+        $img = imagecreate($long, $larg);
+        $blanc = imagecolorallocate($img, 255, 255, 255);
+        $noir = imagecolorallocate($img, 0, 0, 0);
+        imagerectangle($img, 1, 1, $long-1, $larg-1, $noir);
+
+        for ($i=0; $i < strlen($word); $i++) {
+            $color = User::colorRand($img, 0, 150);
+            imagestring($img, 7, 5+$i*9, 4, $word[$i], $color);
+        }
+        for ($i=0; $i < 3; $i++) {
+            $color = User::colorRand($img, 151, 255);
+            imageline($img, 1, mt_rand(1,10), $long, mt_rand(1,19), $color);
+        }
+        imagepng($img);
+        imagedestroy($img);
+    }
+
+    public static function colorRand($img, $limitMin, $limiteMax){
+        return imagecolorallocate($img, mt_rand($limitMin, $limiteMax), mt_rand($limitMin, $limiteMax), mt_rand($limitMin, $limiteMax));
+    }
+
     public static function createFromCookie($idUser){
         $bdd = MyPDO::getInstance();
 
@@ -363,6 +401,8 @@ HTML;
 			 	<input type="text" placeholder="Pseudo" name="nickname" value="$nickname" pattern=".{5,20}" required>
 			 	<input type="password" placeholder="Mot de passe" name="password" pattern=".{8,}" required>
 			 	<input type="email" placeholder="Adresse e-mail" name="email" value="$email" required>
+                <label>Saisissez les lettres de l'image: <input type="text" name="captcha" placeholder="Captcha" required></label>
+                <img src="captcha.php" alt="captcha">
 			 	<input type="submit" value="S'inscrire" name="formAdd">
 			</form>
 HTML;
@@ -377,11 +417,13 @@ HTML;
 	 */
 
 	public static  function addUser($data) {
-		if(!isset($data['nickname']) || empty($data['nickname']) || !isset($data['password']) || empty($data['password']) || !isset($data['email']) || empty($data['email']))
+		if(!isset($data['nickname']) || empty($data['nickname']) || !isset($data['password']) || empty($data['password']) || !isset($data['email']) || empty($data['email']) || !isset($data['captcha']) || empty($data['captcha']))
 			return "Tous les champs sont requis";
 
 		$erreurs = array();
 
+        if($data['captcha'] != $_SESSION['captcha'])
+            $erreurs[] = "Le captcha est incorrect";
 
 		$data['nickname'] = filter_var($data['nickname'], FILTER_SANITIZE_SPECIAL_CHARS);
 

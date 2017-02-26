@@ -21,8 +21,11 @@ if(isset($_GET['idC'])){
             if(!User::isConnected()){
                 header("Location: connexion.php");
             }
-            Comment::addComment($_POST, $_GET['idA']);
-            $info = "Votre commentaire a été ajouté";
+            $res = Comment::addComment($_POST, $_GET['idA']);
+            if($res)
+                $info = "Le commentaire a été ajouté";
+            else
+                $info = "Le captcha est incorrect";
         }
         $wp = New WebPage($article->titleArticle);
         $wp->appendContent($article->displayComment($_GET['idA']));

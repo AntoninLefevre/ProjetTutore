@@ -212,6 +212,8 @@ HTML;
 			<form action="?idA=$id" method="post">
 				$info
 				<textarea name="content">$content</textarea>
+                <label>Saisissez les lettres de l'image: <input type="text" name="captcha" placeholder="Captcha" required></label>
+                <img src="captcha.php" alt="captcha">
 				<input type="submit" name="formAddComment">
 			</form>
 HTML;
@@ -222,6 +224,9 @@ HTML;
 	public static function addComment($data, $idArticle)
 	{
 		$bdd = MyPDO::getInstance();
+
+        if($data['captcha'] != $_SESSION['captcha'])
+            return false;
 
 		$pdo = $bdd->prepare("INSERT INTO comment VALUES(NULL, ?, NOW(), ?, ?)");
 		$pdo->execute(array(htmlentities($data['content']), $idArticle, $_SESSION['user']->idUser));
