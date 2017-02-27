@@ -85,10 +85,16 @@ class Article {
 	 * @return Article()
 	 */
 
-	public static function getArticles() {
+	public static function getArticles($limit = null) {
 		$bdd = MyPDO::getInstance();
 
-		$pdo = $bdd->prepare("SELECT * FROM article");
+        $req = "";
+
+        if(!is_null($limit)){
+            $req = " LIMIT " . $limit['limit'] . " OFFSET " . $limit['offset'];
+        }
+
+		$pdo = $bdd->prepare("SELECT * FROM article" . $req);
 		$pdo->execute();
         $pdo->setFetchMode(PDO::FETCH_CLASS, __CLASS__);
 
@@ -102,11 +108,17 @@ class Article {
 		return $res;
 	}
 
-    public static function getArticlesPerCategory($categories){
+    public static function getArticlesPerCategory($categories, $limit = null){
         $where = implode(" OR idCategory = ", $categories);
         $bdd = MyPDO::getInstance();
 
-        $pdo = $bdd->prepare("SELECT * FROM article WHERE idCategory = " . $where);
+        $req = "";
+
+        if(!is_null($limit)){
+            $req = " LIMIT " . $limit['limit'] . " OFFSET " . $limit['offset'];
+        }
+
+        $pdo = $bdd->prepare("SELECT * FROM article WHERE idCategory = " . $where . $req);
         $pdo->setFetchMode(PDO::FETCH_CLASS, __CLASS__);
         $pdo->execute();
 
@@ -227,6 +239,36 @@ HTML;
             <div>Publié $datetime par $auteur</div>
             <p><a href="articles.php?id={$this->idArticle}">Lire</a></p>
         </div>
+HTML;
+
+        return $html;
+    }
+
+    public static function displayArticlesLimit($articles){
+        $html = "";
+
+        foreach ($articles as $article) {
+            $html .= $article->displayArticleExtract();
+        }
+
+        return $html;
+    }
+
+    public function displayArticleExtract(){
+        $content = strip_tags(substr($this->contentArticle, 0 , 250));
+        $space=strrpos($content, ' ');
+
+        $content=substr($content,0,$space)." ...";
+        $html = <<<HTML
+            <div class="row">
+                <div class="col-md-8 col-md-offset-2">
+                    <h1>{$this->titleArticle}</h1>
+                    <div>
+                        $content
+                    </div>
+                    <div><a href="articles.php?id={$this->idArticle}">Lire la suite</a></div>
+                </div>
+            </div>
 HTML;
 
         return $html;

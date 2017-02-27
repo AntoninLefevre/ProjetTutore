@@ -367,35 +367,42 @@ HTML;
 
 	public static function displayMenuCategorys(){
 		$categorys = Category::getCategorys(true);
-		$html = "<ul>";
+		$html = "";
 
 		if($categorys){
 
 			foreach ($categorys as $category) {
-				$html .= "<li><a href='categories.php?id=" . $category->idCategory . "'>" . $category->lblCategory . "</a></li>";
-				if(!is_null($category->categoryChildren))
-					$html .= $category->displayMenuCategorysChildren();
+				if(!is_null($category->categoryChildren)){
+					$html .= <<<HTML
+					<li class="dropdown-parent">
+						<a href='categories.php?id={$category->idCategory}' class="dropdown-toggle">{$category->lblCategory} <span class="caret"></span></a>
+HTML;
+					$html .= "<ul class='dropdown-menu multi-level'>" . $category->displayMenuCategorysChildren() . "</ul></li>";
+				} else{
+					$html .= "<li><a href='categories.php?id=" . $category->idCategory . "'>" . $category->lblCategory . "</a></li>";
+				}
 
 			}
 
 		}
 
-		$html .= "</ul>";
-
-
 		return $html;
 	}
 
 	public function displayMenuCategorysChildren(){
-		$html = "<ul>";
+		$html = "";
 
 		foreach ($this->categoryChildren as $categoryChild) {
-			$html .= "<li><a href='categories.php?id=" . $categoryChild->idCategory . "'>" . $categoryChild->lblCategory . "</a></li>";
-			if(!is_null($categoryChild->categoryChildren))
-				$html .= $categoryChild->displayMenuCategorysChildren();
+			if(!is_null($categoryChild->categoryChildren)){
+				$html .= <<<HTML
+				<li class="dropdown-submenu">
+					<a href='categories.php?id={$categoryChild->idCategory}' class="dropdown-toggle">{$categoryChild->lblCategory} <span class="caretright"></span></a>
+HTML;
+				$html .= "<ul class='dropdown-menu'>" . $categoryChild->displayMenuCategorysChildren() . "</ul></li>";
+			} else{
+				$html .= "<li><a href='categories.php?id=" . $categoryChild->idCategory . "'>" . $categoryChild->lblCategory . "</a></li>";
+			}
 		}
-
-		$html .= "</ul>";
 
 		return $html;
 	}

@@ -598,11 +598,13 @@ HTML;
 	public function formEditEmail($email = "", $info = ""){
 		$email = empty($email) ? $this->emailUser : $email;
 		$html = <<<HTML
-			<form action="" method="post">
-				$info
-			 	<input type="email" placeholder="E-mail" name="email" value="$email" required>
-			 	<input type="submit" value="Modifier" name="formEditEmail">
-			</form>
+            <div class="col-sm-offset-5 col-sm-2 text-center">
+    			<form action="" method="post" class="form-horizontal">
+    				$info
+    			 	<input type="email" placeholder="E-mail" name="email" value="$email" class="form-control" required>
+    			 	<input type="submit" value="Modifier" name="formEditEmail" class="btn btn-default">
+    			</form>
+            </div>
 HTML;
 		return $html;
 	}
@@ -637,12 +639,14 @@ HTML;
 
 	public function formDeleteUser($info = ""){
 		$html = <<<HTML
-			<p>Supprimer mon compte:</p>
-			<form action="" method="post">
-				$info
-				<input type="password" name="password" placeholder="Mot de passe" required>
-				<input type="submit" name="formDeleteUser" value="Supprimer mon compte">
-			</form>
+            <div class="col-sm-offset-5 col-sm-2 text-center">
+    			<p>Supprimer mon compte:</p>
+    			<form action="" method="post" class="form-horizontal">
+    				$info
+    				<input type="password" name="password" placeholder="Mot de passe" class="form-control" required>
+    				<input type="submit" name="formDeleteUser" value="Supprimer mon compte" class="btn btn-default">
+    			</form>
+            </div>
 HTML;
 		return $html;
 	}

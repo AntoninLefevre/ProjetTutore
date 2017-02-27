@@ -176,7 +176,7 @@ HTML
             $filesJs = $files['js'];
             if(!is_null($filesJs)){
                 foreach ($filesJs as $fileJs) {
-                    $this->appendCssUrl($path . $fileJs);
+                    $this->appendJsUrl($path . $fileJs);
                 }
             }
         }
@@ -185,10 +185,25 @@ HTML
     public function setMenu(){
         User::startSession();
         $categorys = Category::displayMenuCategorys();
+        $site = Site::getOptions();
+        $this->menu = <<<HTML
+        <nav class="navbar navbar-default">
+                <div class="navbar-header">
+                  <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1" aria-expanded="false">
+                    <span class="sr-only">Toggle navigation</span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                  </button>
+                  <a class="navbar-brand" href="index.php">{$site['siteName']}</a>
+                </div>
+
+                <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+                    <ul class="nav navbar-nav">
+HTML;
         if(isset($_SESSION['connected']) && $_SESSION['connected']){
             if($_SESSION["user"]->isAdministrator || $_SESSION['user']->redacArticle || $_SESSION['user']->editOwnArticle || $_SESSION['user']->deleteOwnArticle || $_SESSION['user']->editComment || $_SESSION['user']->deleteComment){
-            $this->menu = <<<HTML
-        <ul>
+            $this->menu .= <<<HTML
             <li><a href="index.php">Accueil</a></li>
             $categorys
             <li><a href="privatemessages.php">Messages</a></li>
@@ -197,11 +212,9 @@ HTML
             <li><a href="administration/index.php">Administration</a></li>
             <li><a href="contact.php">Contact</a></li>
             <li><a href="logout.php">Déconnexion</a></li>
-        </ul>
 HTML;
             } else {
-            $this->menu = <<<HTML
-        <ul>
+            $this->menu .= <<<HTML
             <li><a href="index.php">Accueil</a></li>
             $categorys
             <li><a href="privatemessages.php">Messages</a></li>
@@ -209,45 +222,66 @@ HTML;
             <li><a href="profile.php">Profil</a></li>
             <li><a href="contact.php">Contact</a></li>
             <li><a href="logout.php">Déconnexion</a></li>
-        </ul>
 HTML;
             }
         } else {
-            $this->menu = <<<HTML
-        <ul>
+            $this->menu .= <<<HTML
             <li><a href="index.php">Accueil</a></li>
             $categorys
             <li><a href="forum.php">Forum</a></li>
             <li><a href="connexion.php">Connexion</a></li>
             <li><a href="subscribe.php">Inscription</a></li>
             <li><a href="contact.php">Contact</a></li>
-        </ul>
 HTML;
         }
+
+        $this->menu .= <<<HTML
+                    </ul>
+                </div>
+        </nav>
+HTML;
     }
 
     public function setAdminMenu(){
         User::startSession();
-        if(isset($_SESSION['connected']) && $_SESSION['connected']){
-            $html = "<ul>";
-            $html .= "<li><a href='..'>Site</a></li>\n";
-            if($_SESSION['user']->redacArticle || $_SESSION['user']->editOwnArticle || $_SESSION['user']->deleteOwnArticle || $_SESSION['user']->editComment || $_SESSION['user']->deleteComment){
-                $html .= "<li><a href='articles.php'>Articles</a></li>\n";
-            }
+        $site = Site::getOptions();
+        $this->menu = <<<HTML
+        <nav class="navbar navbar-default">
+                <div class="navbar-header">
+                  <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1" aria-expanded="false">
+                    <span class="sr-only">Toggle navigation</span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                  </button>
+                  <a class="navbar-brand" href="../index.php">{$site['siteName']}</a>
+                </div>
 
-            if($_SESSION['user']->isAdministrator){
-                $html .= "<li><a href='categorys.php'>Catégories</a></li>\n";
-                $html .= "<li><a href='users.php'>Membres</a></li>\n";
-            }
+                <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+                    <ul class="nav navbar-nav">
+HTML;
 
-            if($_SESSION['user']->isAdministrator){
-                $html .= "<li><a href='optionsSite.php'>Options</a></li>\n";
-            }
-
-            $html .= "</ul>";
-
-            $this->menu = $html;
+        $html = "";
+        if($_SESSION['user']->redacArticle || $_SESSION['user']->editOwnArticle || $_SESSION['user']->deleteOwnArticle || $_SESSION['user']->editComment || $_SESSION['user']->deleteComment){
+            $html .= "<li><a href='articles.php'>Articles</a></li>\n";
         }
+
+        if($_SESSION['user']->isAdministrator){
+            $html .= "<li><a href='categorys.php'>Catégories</a></li>\n";
+            $html .= "<li><a href='users.php'>Membres</a></li>\n";
+        }
+
+        if($_SESSION['user']->isAdministrator){
+            $html .= "<li><a href='optionsSite.php'>Options</a></li>\n";
+        }
+
+        $this->menu .= $html;
+
+        $this->menu .= <<<HTML
+                </ul>
+            </div>
+        </nav>
+HTML;
 
     }
 
@@ -266,12 +300,15 @@ HTML;
 <html lang="fr">
     <head>
         <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
         <title>{$this->title}</title>
         {$this->head}
     </head>
     <body>
-        {$this->menu}
-        {$this->body}
+        <div class="container">
+            {$this->menu}
+            {$this->body}
+        </div>
     </body>
 </html>
 HTML;

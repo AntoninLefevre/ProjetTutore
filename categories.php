@@ -24,16 +24,15 @@ if(!is_null($listChildren)){
     }
 }
 
-$articles = Article::getArticlesPerCategory($list);
+$p = 1;
 
-if($articles){
-    foreach ($articles as $article) {
-        $wp->appendContent($article->displayArticle());
-    }
-} else {
-    $wp->appendContent("<div>Aucun article dans la catégorie " . $category->lblCategory);
-}
+$articles = Article::getArticlesPerCategory($list, ["limit" => $siteOptions['articlesPerPage'], "offset" => ($p - 1) * $siteOptions['articlesPerPage']]);
 
-$wp->appendContent("Vous êtes ici: " . $breadcrumb);
+if($articles)
+    $wp->appendContent(Article::displayArticlesLimit($articles));
+else
+    $wp->appendContent("Page d'accueil");
+
+$wp->appendContent("<div class='row'>Vous êtes ici: " . $breadcrumb . "</div>");
 
 echo $wp->toHTML();
