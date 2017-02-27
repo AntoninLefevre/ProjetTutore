@@ -14,13 +14,7 @@ $list[] = $_GET['id'];
 
 if(!is_null($listChildren)){
     foreach ($listChildren as $value) {
-        if(is_array($value)){
-            foreach ($value as $id) {
-                $list[] = $id;
-            }
-        } else {
             $list[] = $value;
-        }
     }
 }
 
@@ -31,8 +25,8 @@ $articles = Article::getArticlesPerCategory($list, ["limit" => $siteOptions['art
 if($articles)
     $wp->appendContent(Article::displayArticlesLimit($articles));
 else
-    $wp->appendContent("Page d'accueil");
+    $wp->appendContent("<div class='row text-center'>Aucun article dans la catégorie " . $category->lblCategory . "</div>");
 
-$wp->appendContent("<div class='row'>Vous êtes ici: " . $breadcrumb . "</div>");
+$wp->appendContent("<div class='row'><div class='col-md-offset-1' >Vous êtes ici: " . $breadcrumb . "</div></div>");
 
 echo $wp->toHTML();

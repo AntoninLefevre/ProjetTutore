@@ -157,7 +157,7 @@ class Category {
 		$lblCategory = isset($data['lblCategory']) ? $data['lblCategory'] : "";
 		$categoryParent = isset($data['categoryParent']) ? $data['categoryParent'] : "";
 
-		$select = "<select name=category>";
+		$select = "<select name='category'  class='form-control'>";
 		$select .= "<option value=''>Aucune catégorie parent</option>";
 
 		if($categorys){
@@ -173,12 +173,14 @@ class Category {
 		$select .= "</select>";
 
 		$html = <<<HTML
-		<form action="" method="post">
-			$info
-			<input type="text" name="lblCategory" placeholder="Nom de la catégorie" pattern=".{1,}">
-			$select
-			<input type="submit" name="formAddCategory" value="Ajouter">
-		</form>
+		<div class="col-md-4 col-md-offset-4 text-center">
+			<form action="" method="post" class="form-horizontal">
+				$info
+				<input type="text" name="lblCategory" placeholder="Nom de la catégorie" pattern=".{1,}" class="form-control">
+				$select
+				<input type="submit" name="formAddCategory" value="Ajouter" class="btn btn-default">
+			</form>
+		</div>
 HTML;
 		return $html;
 	}
@@ -200,15 +202,22 @@ HTML;
 	}
 
 	public function getIdChildren(){
-		if(!is_null($this->categoryChildren)){
-			foreach($this->categoryChildren as $categoryChild){
-				$list[] = $categoryChild->idCategory;
-				if(!is_null($categoryChild->categoryChildren)){
-					$list[] = $categoryChild->getIdChildren();
+			if(!is_null($this->categoryChildren)){
+				foreach($this->categoryChildren as $categoryChild){
+					$list[] = $categoryChild->idCategory;
+					if(!is_null($categoryChild->categoryChildren)){
+						$children = $categoryChild->getIdChildren();
+						if(is_array($children)){
+							foreach ($children as $child) {
+								$list[] = $child;
+							}
+						} else {
+							$lis[] = $children;
+						}
+					}
 				}
+				return $list;
 			}
-			return $list;
-		}
 	}
 
 	public function formEditCategory($data = array(), $info = ""){
@@ -217,7 +226,7 @@ HTML;
 		$lblCategory = isset($data['lblCategory']) ? $data['lblCategory'] : $this->lblCategory;
 		$categoryParent = isset($data['categoryParent']) ? $data['categoryParent'] : "";
 
-		$select = "<select name=category>";
+		$select = "<select name='category' class='form-control'>";
 		$select .= "<option value=''>Aucune catégorie parent</option>";
 
 		$listChildren = array();
@@ -255,12 +264,14 @@ HTML;
 		$select .= "</select>";
 
 		$html = <<<HTML
-		<form action="" method="post">
-			$info
-			<input type="text" name="lblCategory" placeholder="Nom de la catégorie" value=$lblCategory pattern=".{1,}">
-			$select
-			<input type="submit" name="formEditCategory" value="Modifier">
-		</form>
+		<div class="col-md-4 col-md-offset-4 text-center">
+			<form action="" method="post" class="form-horizontal">
+				$info
+				<input type="text" name="lblCategory" placeholder="Nom de la catégorie" value=$lblCategory pattern=".{1,}" class="form-control">
+				$select
+				<input type="submit" name="formEditCategory" value="Modifier" class="btn btn-default">
+			</form>
+		</div>
 HTML;
 		return $html;
 	}
@@ -283,12 +294,14 @@ HTML;
 
 	public function formDeleteCategory($info = ""){
 		$html = <<<HTML
-        <form action="" method="post">
-        	<p>En supprimant la catégorie {$this->lblCategory}, toutes les catégories enfants ainsi que leurs articles seront supprimés</p>
-            <p>Supprimer la categorie {$this->lblCategory} ?</p>
-            <input type="submit" name="formDeleteCategory" value="Confirmer">
-            <input type="submit" name="cancelDeleteCategory" value="Annuler">
-        </form>
+		<div class="col-md-8 col-md-offset-2 text-center">En supprimant la catégorie {$this->lblCategory}, toutes les catégories enfants ainsi que leurs articles seront supprimés</div>
+		<div class="col-md-4 col-md-offset-4 text-center">
+	        <form action="" method="post" class="form-inline">
+	            <p>Supprimer la categorie {$this->lblCategory} ?</p>
+	            <input type="submit" name="formDeleteCategory" value="Confirmer" class="btn btn-primary">
+	            <input type="submit" name="cancelDeleteCategory" value="Annuler" class="btn btn-danger">
+	        </form>
+	    </div>
 HTML;
         return $html;
 	}
@@ -306,7 +319,8 @@ HTML;
 		$categorys = Category::getCategorys(true);
 		$html = <<<HTML
 		<a href="?a=a">Ajouter une catégorie</a>
-		<table>
+        <div class="table-responsive">
+		<table class="table table-bordered table-striped">
 			<tr>
 				<th>Nom de la catégorie</th>
 				<th>Catégorie parent</th>
@@ -316,7 +330,7 @@ HTML;
 HTML;
 		if(!$categorys){
             $html .= <<<HTML
-            </table>
+            </table></div>
             <p>Aucune categorie à afficher</p>
 HTML;
         } else {
@@ -340,7 +354,7 @@ HTML;
 					$html .= $category->displayCategorysChildren();
 			}
 
-			$html .= "</table>";
+			$html .= "</table></div>";
 		}
 
 		return $html;
@@ -409,33 +423,49 @@ HTML;
 
 	public static function displayArticleCategorys($idCategory = null){
 		$categorys = Category::getCategorys(true);
-		$html = "<ul>";
+		$html = "<div class='col-md-2 col-md-offset-5'><ul class='list-group text-center'>";
 
 		foreach ($categorys as $category) {
 			$checked = "";
 			if($category->idCategory == $idCategory){
 				$checked = "checked";
 			}
-			$html .= "<li><label><input type='radio' name='category' value=" . $category->idCategory . " $checked required>" . $category->lblCategory . "</label></li>";
+			$html .= <<<HTML
+				<div class="radio">
+					<li class="list-group-item">
+						<label>
+							<input type='radio' name='category' value="{$category->idCategory}" $checked required>{$category->lblCategory}
+						</label>
+					</li>
+				</div>
+HTML;
 			if(!is_null($category->categoryChildren))
 				$html .= $category->displayArticleCategorysChildren($idCategory);
 
 		}
 
-		$html .= "</ul>";
+		$html .= "</ul></div>";
 
 		return $html;
 	}
 
 	public function displayArticleCategorysChildren($idCategory = null){
-		$html = "<ul>";
+		$html = "<ul class='list-group'>";
 
 		foreach ($this->categoryChildren as $categoryChild) {
 			$checked = "";
 			if($categoryChild->idCategory == $idCategory){
 				$checked = "checked";
 			}
-			$html .= "<li><label><input type='radio' name='category' value=" . $categoryChild->idCategory . " $checked required>" . $categoryChild->lblCategory . "</label></li>";
+			$html .= <<<HTML
+				<div class="radio">
+					<li class="list-group-item">
+						<label>
+							<input type='radio' name='category' value="{$categoryChild->idCategory}" $checked required> {$categoryChild->lblCategory}
+						</label>
+					</li>
+				</div>
+HTML;
 			if(!is_null($categoryChild->categoryChildren))
 				$html .= $categoryChild->displayArticleCategorysChildren($idCategory);
 		}
@@ -460,10 +490,12 @@ HTML;
 
 		if(!is_null($categories)){
 			$html .= <<<HTML
-			<table>
-				<tr>
-					<th>Catégorie</th>
-				</tr>
+			<div class="col-md-8 col-md-offset-2">
+	        <div class="table-responsive">
+	        	<table class="table table-bordered table-striped">
+					<tr>
+						<th>Catégorie</th>
+					</tr>
 HTML;
 			foreach ($categories as $category) {
 				$html .= <<<HTML
@@ -473,15 +505,17 @@ HTML;
 HTML;
 			}
 
-			$html .= "</table>";
+			$html .= "</table></div></div>";
 		}
 
 		if($articles){
 			$html .= <<<HTML
-			<table>
-				<tr>
-					<th>Articles</th>
-				</tr>
+			<div class="col-md-8 col-md-offset-2">
+	        <div class="table-responsive">
+	        	<table class="table table-bordered table-striped">
+					<tr>
+						<th>Articles</th>
+					</tr>
 HTML;
 			foreach ($articles as $article) {
 				$html .= <<<HTML
@@ -491,7 +525,7 @@ HTML;
 HTML;
 			}
 
-			$html .= "</table>";
+			$html .= "</table></div></div>";
 		}
 
 

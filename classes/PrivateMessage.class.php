@@ -149,12 +149,13 @@ class PrivateMessage {
 
 	public static function displayPMs($PMs) {
 		$html = <<<HTML
-		<table>
-			<tr>
-				<th>Objet</th>
-				<th>Expéditeur</th>
-				<th>Date de réception</th>
-			</tr>
+		<div class="table-responsive">
+			<table class="table table-bordered table-striped">
+				<tr>
+					<th>Objet</th>
+					<th>Expéditeur</th>
+					<th>Date de réception</th>
+				</tr>
 HTML;
 
 		foreach ($PMs as $pm) {
@@ -170,7 +171,7 @@ HTML;
 HTML;
 		}
 
-		$html .= "</table>";
+		$html .= "</table></div>";
 
 		return $html;
 	}
@@ -180,10 +181,19 @@ HTML;
 		$sender = User::getUser($this->idSender);
         $datetime = strftime("le %d/%m/%Y à %T ", strtotime($this->datetimePM));
 		$html = <<<HTML
-		<div>
-			<p>{$this->titlePM}</p>
-			<div>$content</div>
-			<p>Envoyé $datetime par {$sender->nicknameUser}</p>
+        <div class="row">
+            <div class="col-md-10 col-md-offset-1">
+                <div class="panel panel-default">
+                    <div class="panel-heading">
+						<h4>{$this->titlePM}</h4>
+					</div>
+                    <div class="panel-body">
+                    	$content
+                    </div>
+                    <div class="panel-footer text-right">
+                    	Envoyé $datetime par {$sender->nicknameUser}
+                    </div>
+                </div>
 		</div>
 HTML;
 		return $html;

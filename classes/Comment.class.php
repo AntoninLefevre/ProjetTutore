@@ -151,12 +151,13 @@ HTML;
 
 	public static function displayCommentsAdmin($idArticle){
 		$html = <<<HTML
-		<table>
-			<tr>
-				<th>Commentaire</th>
-				<th>Modifier</th>
-				<th>Supprimer</th>
-			</tr>
+		<div class="table-responsive">
+			<table class="table table-bordered table-striped">
+				<tr>
+					<th>Commentaire</th>
+					<th>Modifier</th>
+					<th>Supprimer</th>
+				</tr>
 HTML;
 
 		$comments = self::getCommentsPerArticle($idArticle);
@@ -198,7 +199,7 @@ HTML;
 			$html .= "<p>Aucun commentaire</p>";
 		}
 
-		$html .= '</div>';
+		$html .= '</table></div>';
 
 		return $html;
 	}
@@ -208,14 +209,21 @@ HTML;
 		$id = $_GET['idA'];
 		$content = isset($data['content']) ? $data['content'] : "";
 		$html = <<<HTML
-			<p>Rédiger un commentaire:</p>
-			<form action="?idA=$id" method="post">
-				$info
-				<textarea name="content">$content</textarea>
-                <label>Saisissez les lettres de l'image: <input type="text" name="captcha" placeholder="Captcha" required></label>
-                <img src="captcha.php" alt="captcha">
-				<input type="submit" name="formAddComment">
-			</form>
+			<div class="row">
+				<div class="col-md-6 col-md-offset-3">
+					<form action="?idA=$id" method="post" class="form-horizontal text-center">
+						$info
+						<p>Rédiger un commentaire:</p>
+						<textarea name="content" class="form-control" rows="3" required>$content</textarea>
+						<div class="form-group">
+			                <label for="captcha" class="control-label col-md-6">Saisissez les lettres de l'image: </label>
+			                <div class="col-md-4"><input type="text" name="captcha" id="captcha" placeholder="Captcha" class="form-control" required></div>
+			                <div class="col-md-2"><img src="captcha.php" alt="captcha"></div>
+						</div>
+						<input type="submit" name="formAddComment" class="btn btn-default">
+					</form>
+				</div>
+			</div>
 HTML;
 
 		return $html;
@@ -239,12 +247,15 @@ HTML;
 		$idA = $_GET['idA'];
 		$content = isset($data['content']) ? nl2br($data['content']) : nl2br($this->contentComment);
 		$html = <<<HTML
-			<p>Rédiger un commentaire:</p>
-			<form action="?idA=$idA&idC={$this->idComment}&a=e" method="post">
-				$info
-				<textarea name="content">$content</textarea>
-				<input type="submit" name="formEditComment">
-			</form>
+
+			<div class="col-md-6 col-md-offset-3">
+				<form action="?idA=$idA&idC={$this->idComment}&a=e" method="post" class="form-horizontal text-center">
+					$info
+					<p>Rédiger un commentaire:</p>
+					<textarea name="content" class="form-control" rows="3">$content</textarea>
+					<input type="submit" name="formEditComment" class="btn btn-default">
+				</form>
+			</div>
 HTML;
 
 		return $html;
@@ -264,14 +275,28 @@ HTML;
 	{
 		$idA = $_GET['idA'];
 		$content = isset($data['content']) ? nl2br($data['content']) : nl2br($this->contentComment);
+		$user = User::getUser($this->idUser);
+		$datetime = strftime("le %d/%m/%Y à %T ", strtotime($this->datetimeComment));
 		$html = <<<HTML
-			<p>Rédiger un commentaire:</p>
-			<form action="?idA=$idA&idC={$this->idComment}&a=d" method="post">
-				<p>Supprimer le commentaire ?</p>
-				<p>$content</p>
-				<input type="submit" name="formDeleteComment" value="Supprimer">
-				<input type="submit" name="cancelDeleteComment" value="Annuler">
-			</form>
+			<div class="col-md-8 col-md-offset-2 text-center">
+				<form action="?idA=$idA&idC={$this->idComment}&a=d" method="post" class="form-inline">
+					<p>Supprimer le commentaire ?</p>
+	                <div class="row">
+	                    <div class="col-md-10 col-md-offset-1 text-left">
+	                        <div class="panel panel-default">
+	                            <div class="panel-body">
+									$content
+								</div>
+								<div class="panel-footer text-right">
+                                	Ecrit par {$user->nicknameUser} $datetime
+								</div>
+							</div>
+						</div>
+					</div>
+					<input type="submit" name="formDeleteComment" value="Supprimer" class="btn btn-primary">
+					<input type="submit" name="cancelDeleteComment" value="Annuler" class="btn btn-danger">
+				</form>
+			</div>
 HTML;
 
 		return $html;

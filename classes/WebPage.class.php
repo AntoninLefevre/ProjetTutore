@@ -32,6 +32,8 @@ class WebPage {
 
     private  $menu = null;
 
+    private $footer = null;
+
 
 	/**
 	 * @access public
@@ -41,6 +43,7 @@ class WebPage {
 
 	public  function __construct($title = null, $menu = true) {
 		$this->setTitle($title);
+        $this->setFooter();
         if($menu){
             $this->setMenu();
             $this->setCss();
@@ -285,6 +288,15 @@ HTML;
 
     }
 
+    public function setFooter(){
+        $site = Site::getOptions();
+        $this->footer = <<<HTML
+        <div class="footer text-center">
+            Tous droits réservés © {$site['siteName']} - Propulsé par <a href="https://github.com/AntoninLefevre/">Antonin Lefevre</a>
+        </div>
+HTML;
+    }
+
 
 	/**
 	 * @access public
@@ -308,6 +320,7 @@ HTML;
         <div class="container">
             {$this->menu}
             {$this->body}
+            {$this->footer}
         </div>
     </body>
 </html>

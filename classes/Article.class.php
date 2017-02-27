@@ -131,20 +131,26 @@ class Article {
         return $res;
     }
 
-    public function displayArticle($isCat = true){
-        $read = $isCat ? "<p><a href='articles.php?id={$this->idArticle}'>Lire</a></p>" : "";
+    public function displayArticle(){
         $content = str_replace('src="../images/', 'src="images/', $this->contentArticle);
         $datetime = strftime("le %d/%m/%Y à %T ", strtotime($this->datetimeArticle));
         $user = User::getUser($this->idUser);
         $auteur = $user ? $user->nicknameUser : "Auteur inconnu";
         $html = <<<HTML
-        <div>
-            <h2>{$this->titleArticle}</h2>
-            <div>
-                $content
+        <div class="row">
+            <div class="col-md-10 col-md-offset-1">
+                <div class="panel panel-default">
+                    <div class="panel-heading">
+                        <h2>{$this->titleArticle}</h2>
+                    </div>
+                    <div class="panel-body">
+                        $content
+                    </div>
+                    <div class="panel-footer text-right">
+                        Publié $datetime par $auteur
+                    </div>
+                </div>
             </div>
-            <div>Publié $datetime par $auteur</div>
-            $read
         </div>
 HTML;
 
@@ -156,7 +162,8 @@ HTML;
         $html = <<<HTML
         <a href="?a=a">Rédiger un article</a>
         $info
-        <table>
+        <div class="table-responsive">
+        <table class="table table-bordered table-striped">
             <tr>
                 <th>Titre</th>
                 <th>Catégorie</th>
@@ -169,7 +176,7 @@ HTML;
 HTML;
         if(!$articles){
             $html .= <<<HTML
-            </table>
+            </table></div>
             <p>Aucun article à afficher</p>
 HTML;
         } else {
@@ -219,7 +226,7 @@ HTML;
 HTML;
             }
 
-            $html .= "</table>";
+            $html .= "</table></div>";
         }
 
         return $html;
@@ -260,15 +267,21 @@ HTML;
 
         $content=substr($content,0,$space)." ...";
         $html = <<<HTML
-            <div class="row">
-                <div class="col-md-8 col-md-offset-2">
-                    <h1>{$this->titleArticle}</h1>
-                    <div>
+        <div class="row">
+            <div class="col-md-10 col-md-offset-1">
+                <div class="panel panel-default">
+                    <div class="panel-heading">
+                        <h3>{$this->titleArticle}</h3>
+                    </div>
+                    <div class="panel-body">
                         $content
                     </div>
-                    <div><a href="articles.php?id={$this->idArticle}">Lire la suite</a></div>
+                    <div class="panel-footer text-right">
+                        <a href="articles.php?id={$this->idArticle}">Lire la suite</a>
+                    </div>
                 </div>
             </div>
+        </div>
 HTML;
 
         return $html;
@@ -323,10 +336,10 @@ HTML;
                     }
                 });
             </script>
-            <form action="" method="post">
+            <form action="" method="post" class="form-horizontal text-center">
                 $info
-                <input type="text" placeholder="Titre de l'article" name="title" value="$title">
-                <textarea class="wysiwyg" name="content">$content</textarea>
+                <input type="text" placeholder="Titre de l'article" name="title" value="$title" class="form-control">
+                <textarea class="wysiwyg form-control" name="content">$content</textarea>
                 <fieldset>
                     <legend>Catégorie</legend>
                     $categorys
@@ -403,10 +416,10 @@ HTML;
                     }
                 });
             </script>
-            <form action="" method="post">
+            <form action="" method="post" class="form-horizontal text-center">
                 $info
-                <input type="text" placeholder="Titre de l'article" name="title" value="$title">
-                <textarea class="wysiwyg" name="content">$content</textarea>
+                <input type="text" placeholder="Titre de l'article" name="title" value="$title" class="form-control">
+                <textarea class="wysiwyg form-control" name="content">$content</textarea>
                 <fieldset>
                     <legend>Catégorie</legend>
                     $categorys
@@ -438,10 +451,10 @@ HTML;
 
     public function formDeleteArticle() {
         $html = <<<HTML
-        <form action="" method="post">
+        <form action="" method="post" class="form-inline text-center">
             <p>Supprimer l'article {$this->titleArticle} ?</p>
-            <input type="submit" name="formDeleteArticle" value="Confirmer">
-            <input type="submit" name="cancelDeleteArticle" value="Annuler">
+            <input type="submit" name="formDeleteArticle" value="Confirmer" class="btn btn-primary">
+            <input type="submit" name="cancelDeleteArticle" value="Annuler" class="btn btn-danger">
         </form>
 HTML;
         return $html;
@@ -467,9 +480,17 @@ HTML;
                 $datetime = strftime("le %d/%m/%Y à %T ", strtotime($comment->datetimeComment));
                 $user = User::getUser($comment->idUser);
                 $html .= <<<HTML
-                <div>
-                    <p>$content</p>
-                    <span>Ecrit par {$user->nicknameUser} $datetime</span>
+                <div class="row">
+                    <div class="col-md-10 col-md-offset-1">
+                        <div class="panel panel-default">
+                            <div class="panel-body">
+                                $content
+                            </div>
+                            <div class="panel-footer text-right">
+                                Ecrit par {$user->nicknameUser} $datetime
+                            </div>
+                        </div>
+                    </div>
                 </div>
 HTML;
             }

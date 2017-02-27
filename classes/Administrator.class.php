@@ -35,27 +35,34 @@ class Administrator extends User {
 		$commentsPerPage = $data['commentsPerPage'];
 		$theme = $data['theme'];
 
-		$listThemes = "<select name='theme'>";
+		$listThemes = "<select name='theme' class='form-control'>";
 
 		foreach (scandir('./../style/') as $dir) {
 		    if(is_dir("./../style/" . $dir) && $dir != "." && $dir != ".."){
+		    	if($dir == $theme){
+		    		$selected = " selected";
+		    	} else {
+		    		$selected = "";
+		    	}
 		        $listThemes .= <<<HTML
-		        <option value="$dir">$dir</option>
+		        <option value="$dir" $selected>$dir</option>
 HTML;
 		    }
 		}
 
 		$listThemes .= "</select>";
 		$html = <<<HTML
-		<form action="" method="post">
-			<input type="text" name="siteName" placeholder="Nom du site" value="$siteName">
-			<input type="text" name="siteDescription" placeholder="Nom du site" value="$siteDescription">
-			<input type="text" name="adminEmail" placeholder="Nom du site" value="$adminEmail">
-			<input type="number" name="articlesPerPage" placeholder="Nom du site" value="$articlesPerPage">
-			<input type="number" name="commentsPerPage" placeholder="Nom du site" value="$commentsPerPage">
-			$listThemes
-			<input type="submit" name="formOptionsSite">
-		</form>
+		<div class="col-md-2 col-md-offset-5">
+			<form action="" method="post" class="form-horizontal text-center">
+				<input type="text" name="siteName" placeholder="Nom du site" value="$siteName" class="form-control">
+				<input type="text" name="siteDescription" placeholder="Nom du site" value="$siteDescription" class="form-control">
+				<input type="text" name="adminEmail" placeholder="Nom du site" value="$adminEmail" class="form-control">
+				<input type="number" name="articlesPerPage" placeholder="Nom du site" value="$articlesPerPage" class="form-control">
+				<input type="number" name="commentsPerPage" placeholder="Nom du site" value="$commentsPerPage" class="form-control">
+				$listThemes
+				<input type="submit" name="formOptionsSite">
+			</form>
+		</div>
 HTML;
 		return $html;
 	}
@@ -94,17 +101,19 @@ HTML;
 		$editComment = $user->editComment ? "checked" : "";
 		$deleteComment = $user->deleteComment ? "checked" : "";
 		$html = <<<HTML
-		<form action="" method="post">
-			$info
-			<input type="text" name="nickname" placeholder="Pseudo" value="{$user->nicknameUser}">
-			<input type="text" name="email" placeholder="E-mail" value="{$user->emailUser}"0>
-			<label>Rédiger un article: <input type="checkbox" name="redacArticle" $redacArticle></label>
-			<label>Modifier ses articles: <input type="checkbox" name="editOwnArticle" $editOwnArticle></label>
-			<label>Supprimer ses articles: <input type="checkbox" name="deleteOwnArticle" $deleteOwnArticle></label>
-			<label>Modifier des commentaires: <input type="checkbox" name="editComment" $editComment></label>
-			<label>Supprimer des commentaires: <input type="checkbox" name="deleteComment" $deleteComment></label>
-			<input type="submit" value="Modifier" name="formEditProfileUser">
-		</form>
+		<div class="col-md-4 col-md-offset-4">
+			<form action="" method="post" class="form-horizontal text-center">
+				$info
+				<input type="text" name="nickname" placeholder="Pseudo" value="{$user->nicknameUser}" class="form-control">
+				<input type="text" name="email" placeholder="E-mail" value="{$user->emailUser}" class="form-control">
+				<div class="checkbox"><label><input type="checkbox" name="redacArticle" $redacArticle> Rédiger un article</label></div>
+				<div class="checkbox"><label><input type="checkbox" name="editOwnArticle" $editOwnArticle> Modifier ses articles</label></div>
+				<div class="checkbox"><label><input type="checkbox" name="deleteOwnArticle" $deleteOwnArticle> Supprimer ses articles</label></div>
+				<div class="checkbox"><label><input type="checkbox" name="editComment" $editComment></label> Modifier des commentaires</div>
+				<div class="checkbox"><label><input type="checkbox" name="deleteComment" $deleteComment>Supprimer des commentaires</label></div>
+				<input type="submit" value="Modifier" name="formEditProfileUser" class="btn btn-default">
+			</form>
+		</div>
 HTML;
 
 		return $html;
@@ -135,12 +144,14 @@ HTML;
 
 	public static function formDeleteProfileUser($user, $info = ""){
 		$html = <<<HTML
-		<form action="" method="post">
-			$info
-			<p>Voulez-vous vraiment supprimer {$user->nicknameUser} ?</p>
-			<input type="submit" value="Supprimer" name="formDeleteProfileUser">
-			<input type="submit" value="Annuler" name="cancelDeleteProfileUser">
-		</form>
+		<div>
+			<form action="" method="post" class="form-horizontal text-center">
+				$info
+				<p>Voulez-vous vraiment supprimer {$user->nicknameUser} ?</p>
+				<input type="submit" value="Supprimer" name="formDeleteProfileUser" class="btn btn-primary">
+				<input type="submit" value="Annuler" name="cancelDeleteProfileUser" class="btn btn-danger">
+			</form>
+		</div>
 HTML;
 
 		return $html;
@@ -154,31 +165,6 @@ HTML;
 
 		return true;
 	}
-
-
-	/**
-	 * Envoyer un mail à un utilisateur
-	 * @access public
-	 * @param array $data Contients les informations du mail
-	 * @return void
-	 */
-
-	public  function sendMailToOneUser($data) {
-
-	}
-
-
-	/**
-	 * Envoyer un mail à tous les utilisateurs
-	 * @access public
-	 * @param array $data Contients les informations du mail
-	 * @return void
-	 */
-
-	public  function sendMailToAllUsers($data) {
-
-	}
-
 
 }
 ?>
