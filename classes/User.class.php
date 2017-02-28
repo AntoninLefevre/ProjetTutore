@@ -187,17 +187,19 @@ HTML;
 	public static function formConnection($infos = "", $data = array()){
 		$nickname = isset($data['nickname']) ? $data['nickname'] : "";
 		$html = <<<HTML
-            <div class="col-md-2 col-md-offset-5">
-    			<form action="" method="post" class="form-horizontal text-center">
-    				$infos
-    				<input type="text" placeholder="Pseudo" name="nickname" value="$nickname"  class="form-control" required>
-    				<input type="password" placeholder="Mot de passe" name="password"  class="form-control" required>
-                    <div class="checkbox">
-                        <label><input type="checkbox" name="remember">Se souvenir de moi</label>
-                    </div>
-    				<input type="submit" value="Se connecter" name="formConnection" class="btn btn-default">
-    			</form>
-                <div class="text-center"><a href="resetPassword.php">Mot de passe oublié ?</a></div>
+            <div class="row">
+                <div class="col-md-2 col-md-offset-5">
+        			<form action="" method="post" class="form-horizontal text-center">
+        				$infos
+        				<input type="text" placeholder="Pseudo" name="nickname" value="$nickname"  class="form-control" required>
+        				<input type="password" placeholder="Mot de passe" name="password"  class="form-control" required>
+                        <div class="checkbox">
+                            <label><input type="checkbox" name="remember">Se souvenir de moi</label>
+                        </div>
+        				<input type="submit" value="Se connecter" name="formConnection" class="btn btn-default">
+        			</form>
+                    <div class="text-center"><a href="resetPassword.php">Mot de passe oublié ?</a></div>
+                </div>
             </div>
 HTML;
 		return $html;
@@ -219,6 +221,7 @@ HTML;
 
         $key = hash("sha256", $res->nicknameUser . $res->emailUser);
 
+        var_dump($data);
         if($key == $data[1]){
             return User::createFromCookie($data[0]);
         } else {
@@ -401,25 +404,27 @@ HTML;
 			$displayInfos = "<div>" . implode("<br>", $infos) . "</div>";
 		}
 		$html = <<<HTML
-            <div class="col-md-6 col-sm-offset-3">
-			<form action="" method="post" class="form-horizontal text-center">
-				$displayInfos
-                <div class="form-group">
-    			 	<div class="col-md-4 col-md-offset-4"><input type="text" placeholder="Pseudo" name="nickname" value="$nickname" pattern=".{5,20}"  class="form-control" required></div>
-    			 	<div class="col-md-4 col-md-offset-4"><input type="password" placeholder="Mot de passe" name="password" pattern=".{8,}"  class="form-control" required></div>
-    			 	<div class="col-md-4 col-md-offset-4"><input type="email" placeholder="Adresse e-mail" name="email" value="$email"  class="form-control" required></div>
+            <div class="row">
+                <div class="col-md-6 col-sm-offset-3">
+        			<form action="" method="post" class="form-horizontal text-center">
+        				$displayInfos
+                        <div class="form-group">
+            			 	<div class="col-md-4 col-md-offset-4"><input type="text" placeholder="Pseudo" name="nickname" value="$nickname" pattern=".{5,20}"  class="form-control" required></div>
+            			 	<div class="col-md-4 col-md-offset-4"><input type="password" placeholder="Mot de passe" name="password" pattern=".{8,}"  class="form-control" required></div>
+            			 	<div class="col-md-4 col-md-offset-4"><input type="email" placeholder="Adresse e-mail" name="email" value="$email"  class="form-control" required></div>
+                        </div>
+                        <div class="form-group">
+                            <div class="row">
+                                <label for="captcha" class="control-label col-md-6 col-md-offset-2">Saisissez les lettres de l'image: </label>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-4 col-md-offset-3"><input type="text" name="captcha" id="captcha" placeholder="Captcha" required></div>
+                                <div class="col-md-2"><img src="captcha.php" alt="captcha"></div>
+                            </div>
+                        </div>
+        			 	<input type="submit" value="S'inscrire" name="formAdd" class="btn btn-default">
+        			</form>
                 </div>
-                <div class="form-group">
-                    <div class="row">
-                        <label for="captcha" class="control-label col-md-6 col-md-offset-2">Saisissez les lettres de l'image: </label>
-                    </div>
-                    <div class="row">
-                        <div class="col-md-4 col-md-offset-3"><input type="text" name="captcha" id="captcha" placeholder="Captcha" required></div>
-                        <div class="col-md-2"><img src="captcha.php" alt="captcha"></div>
-                    </div>
-                </div>
-			 	<input type="submit" value="S'inscrire" name="formAdd" class="btn btn-default">
-			</form>
             </div>
 HTML;
 		return $html;
@@ -533,18 +538,20 @@ HTML;
     public static function formResetPasswordEmail($email = ""){
     	$info = !empty($email) ? "L'adresse e-mail n'est pas valide" : "";
     	$html = <<<HTML
-            <div class="col-md-6 col-md-offset-3">
-        		<form action="" method="post" class="form-horizontal text-center">
-        			$info
-        			<p>Veuillez saisir votre adresse e-mail.</p>
-                    <p>Un lien permettant de créer un nouveau mot de passe vous sera envoyé par e-mail.</p>
-        			<div class="row">
-                        <div class="col-md-4 col-md-offset-4">
-                            <input type="email" name="email" value="$email" class="form-control" placeholder="Adresse e-mail" required>
+            <div class="row">
+                <div class="col-md-6 col-md-offset-3">
+            		<form action="" method="post" class="form-horizontal text-center">
+            			$info
+            			<p>Veuillez saisir votre adresse e-mail.</p>
+                        <p>Un lien permettant de créer un nouveau mot de passe vous sera envoyé par e-mail.</p>
+            			<div class="row">
+                            <div class="col-md-4 col-md-offset-4">
+                                <input type="email" name="email" value="$email" class="form-control" placeholder="Adresse e-mail" required>
+                            </div>
                         </div>
-                    </div>
-        			<input type="submit" name="formResetPasswordEmail" class="btn btn-default">
-        		</form>
+            			<input type="submit" name="formResetPasswordEmail" class="btn btn-default">
+            		</form>
+                </div>
             </div>
 HTML;
 		return $html;
@@ -592,14 +599,16 @@ HTML;
 			$email = $_GET["email"];
 			$code = $_GET["code"];
 			$html = <<<HTML
-            <div class="col-md-2 col-md-offset-5">
-    			<form action="" method="post" class="form-horizontal text-center">
-    				$info
-    				<input type="password" name="password" placeholder="Mot de passe (min: 8 car.)" pattern=".{8,}" class="form-control" required>
-    				<input type="submit" name="formResetPassword" value="Modifier" class="btn btn-default">
-    				<input type="hidden" name="email" value="$email">
-    				<input type="hidden" name="code" value="$code">
-    			</form>
+            <div class="row">
+                <div class="col-md-2 col-md-offset-5">
+        			<form action="" method="post" class="form-horizontal text-center">
+        				$info
+        				<input type="password" name="password" placeholder="Mot de passe (min: 8 car.)" pattern=".{8,}" class="form-control" required>
+        				<input type="submit" name="formResetPassword" value="Modifier" class="btn btn-default">
+        				<input type="hidden" name="email" value="$email">
+        				<input type="hidden" name="code" value="$code">
+        			</form>
+                </div>
             </div>
 HTML;
 
@@ -623,12 +632,14 @@ HTML;
 	public function formEditEmail($email = "", $info = ""){
 		$email = empty($email) ? $this->emailUser : $email;
 		$html = <<<HTML
-            <div class="col-sm-offset-5 col-sm-2 text-center">
-    			<form action="" method="post" class="form-horizontal">
-    				$info
-    			 	<input type="email" placeholder="E-mail" name="email" value="$email" class="form-control" required>
-    			 	<input type="submit" value="Modifier" name="formEditEmail" class="btn btn-default">
-    			</form>
+            <div class="row">
+                <div class="col-sm-offset-5 col-sm-2 text-center">
+        			<form action="" method="post" class="form-horizontal">
+        				$info
+        			 	<input type="email" placeholder="E-mail" name="email" value="$email" class="form-control" required>
+        			 	<input type="submit" value="Modifier" name="formEditEmail" class="btn btn-default">
+        			</form>
+                </div>
             </div>
 HTML;
 		return $html;
@@ -664,17 +675,19 @@ HTML;
 
 	public function formDeleteUser($info = ""){
 		$html = <<<HTML
-            <div class="col-sm-offset-4 col-sm-4">
-    			<form action="" method="post" class="form-horizontal text-center">
-    				$info
-                    <p>Supprimer mon compte:</p>
-    				<div class="row">
-                        <div class="col-md-6 col-md-offset-3">
-                            <input type="password" name="password" placeholder="Mot de passe" class="form-control" required>
+            <div class="row">
+                <div class="col-sm-offset-4 col-sm-4">
+        			<form action="" method="post" class="form-horizontal text-center">
+        				$info
+                        <p>Supprimer mon compte:</p>
+        				<div class="row">
+                            <div class="col-md-6 col-md-offset-3">
+                                <input type="password" name="password" placeholder="Mot de passe" class="form-control" required>
+                            </div>
                         </div>
-                    </div>
-    				<input type="submit" name="formDeleteUser" value="Supprimer mon compte" class="btn btn-default">
-    			</form>
+        				<input type="submit" name="formDeleteUser" value="Supprimer mon compte" class="btn btn-default">
+        			</form>
+                </div>
             </div>
 HTML;
 		return $html;
@@ -743,18 +756,20 @@ HTML;
         $content = isset($data['content']) ? $data['content'] : "";
 
         $html = <<<HTML
-        <div class="col-md-6 col-md-offset-3">
-            <form action="" method="post" class="form-horizontal text-center">
-                $info
-                <div class="col-md-6 col-md-offset-3">
-                    <input type="text" name="receiver" value="$receiver" placeholder="Destinataire" class="form-control" required>
-                </div>
-                <div class="col-md-6 col-md-offset-3">
-                    <input type="text" name="title" value="$title" placeholder="Objet" class="form-control" required>
-                </div>
-                <textarea name="content" placeholder="Message" class="form-control" rows="3" required>$content</textarea>
-                <input type="submit" name="formSendPM" class="btn btn-default">
-            </form>
+        <div class="row">
+            <div class="col-md-6 col-md-offset-3">
+                <form action="" method="post" class="form-horizontal text-center">
+                    $info
+                    <div class="col-md-6 col-md-offset-3">
+                        <input type="text" name="receiver" value="$receiver" placeholder="Destinataire" class="form-control" required>
+                    </div>
+                    <div class="col-md-6 col-md-offset-3">
+                        <input type="text" name="title" value="$title" placeholder="Objet" class="form-control" required>
+                    </div>
+                    <textarea name="content" placeholder="Message" class="form-control" rows="3" required>$content</textarea>
+                    <input type="submit" name="formSendPM" class="btn btn-default">
+                </form>
+            </div>
         </div>
 HTML;
 
@@ -766,15 +781,17 @@ HTML;
         $content = isset($data['content']) ? $data['content'] : "";
 
         $html = <<<HTML
-        <div class="col-md-6 col-md-offset-3">
-            <form action="" method="post" class="form-horizontal text-center">
-                $info
-                <div class="col-md-6 col-md-offset-3">
-                    <input type="text" name="title" value="$title" placeholder="Objet" class="form-control" required>
-                </div>
-                <textarea name="content" placeholder="Message" class="form-control" rows="3" required>$content</textarea>
-                <input type="submit" name="formReplyPM" value="Répondre" class="btn btn-default">
-            </form>
+        <div class="row">
+            <div class="col-md-6 col-md-offset-3">
+                <form action="" method="post" class="form-horizontal text-center">
+                    $info
+                    <div class="col-md-6 col-md-offset-3">
+                        <input type="text" name="title" value="$title" placeholder="Objet" class="form-control" required>
+                    </div>
+                    <textarea name="content" placeholder="Message" class="form-control" rows="3" required>$content</textarea>
+                    <input type="submit" name="formReplyPM" value="Répondre" class="btn btn-default">
+                </form>
+            </div>
         </div>
 HTML;
 
@@ -787,18 +804,20 @@ HTML;
 		$message = isset($data['message']) ? $data['message'] : "";
 
 		$html = <<<HTML
-        <div class="col-md-6 col-md-offset-3">
-    		<form action="" method="post" class="form-horizontal text-center">
-    			$info
-                <div class="col-md-6 col-md-offset-3">
-                    <input type="text" name="subject" placeholder="Objet du message" value="$subject" class="form-control" required>
-                </div>
-                <div class="col-md-6 col-md-offset-3">
-                    <input type="email" name="email" placeholder="Adresse e-mail" value="$email" class="form-control" required>
-                </div>
-    			<textarea name="message" placeholder="Message" class="form-control" rows="3" required>$message</textarea>
-    			<input type="submit" name="formContact" class="btn btn-default">
-    		</form>
+        <div class="row">
+            <div class="col-md-6 col-md-offset-3">
+        		<form action="" method="post" class="form-horizontal text-center">
+        			$info
+                    <div class="col-md-6 col-md-offset-3">
+                        <input type="text" name="subject" placeholder="Objet du message" value="$subject" class="form-control" required>
+                    </div>
+                    <div class="col-md-6 col-md-offset-3">
+                        <input type="email" name="email" placeholder="Adresse e-mail" value="$email" class="form-control" required>
+                    </div>
+        			<textarea name="message" placeholder="Message" class="form-control" rows="3" required>$message</textarea>
+        			<input type="submit" name="formContact" class="btn btn-default">
+        		</form>
+            </div>
         </div>
 HTML;
 

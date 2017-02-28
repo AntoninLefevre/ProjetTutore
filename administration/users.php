@@ -4,10 +4,11 @@ require_once('autoload.inc.php');
 
 $user = User::createFromSession();
 
+if(!$user->isAdministrator){
+    header("Location: index.php");
+}
 
 $wp = new WebPage('Membres', false);
-
-$wp->appendCssUrl('../style/default/style.css');
 
 if(isset($_GET['id'])){
     if(isset($_GET['a'])){

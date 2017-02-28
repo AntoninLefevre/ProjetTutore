@@ -10,10 +10,9 @@ if(!$user->isAdministrator){
 
 $wp = new WebPage('Administration', false);
 
-$wp->appendCssUrl('../style/' . Site::getOptions()['theme'] . '/style.css');
-
 if(isset($_POST['formOptionsSite'])){
     Administrator::editOptionSite($_POST);
+    header("Location: optionsSite.php");
 }
 
 $wp->appendContent(Administrator::formOptionsSite());

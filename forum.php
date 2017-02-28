@@ -28,7 +28,6 @@ if(isset($_GET['idC'])){
                 $info = "Le captcha est incorrect";
         }
         $wp = New WebPage($article->titleArticle);
-        $wp->appendContent($article->displayComment($_GET['idA']));
         if(User::isConnected()){
             $wp->appendContent(Comment::formAddComment(array(), $info));
         } else {
@@ -37,6 +36,26 @@ if(isset($_GET['idC'])){
 HTML
             );
         }
+
+        $nbComments = Comment::countComments($_GET['idA']);
+        $commentsPerPage = $siteOptions['commentsPerPage'] <= 0 ? $nbComments : $siteOptions['commentsPerPage'];
+        $nbPages = intval(ceil($nbComments / $commentsPerPage));
+
+        $page = isset($_GET['p']) ? intval($_GET['p']) : "1";
+        if($page <= 1){
+            $p = 1;
+        } elseif($_GET['p'] >= $nbPages){
+            $p = $nbPages;
+        } else {
+            $p = $_GET['p'];
+        }
+
+        $comments = Comment::getCommentsPerArticle($_GET['idA'], ["limit" => $commentsPerPage, "offset" => ($p - 1) * $commentsPerPage]);
+
+        $wp->appendContent($article->displayComment($comments));
+
+        $pagination = Comment::displayPagination($p, $nbPages, $_GET['idA']);
+        $wp->appendContent($pagination);
     } else {
         header("Location: forum.php");
     }

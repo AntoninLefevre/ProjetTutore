@@ -10,8 +10,6 @@ if($user->isAdministrator == 0){
 
 $wp = new WebPage('Categories', false);
 
-$wp->appendCssUrl('../style/default/style.css');
-
 if(isset($_GET['a'])){
     if($_GET['a'] == 'a'){
         if(isset($_POST['formAddCategory'])){

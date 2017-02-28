@@ -4,8 +4,9 @@ include_once('autoload.inc.php');
 
 $wp = new Webpage("Article", false);
 
-$wp->appendCssUrl('../style/default/style.css');
-
+if(!$user->editComment && !$user->deleteComment && !$user->isAdministrator){
+    header("Location: index.php");
+}
 
 if(isset($_GET['idA'])){
     $article = Article::getArticle($_GET['idA']);
@@ -15,6 +16,9 @@ if(isset($_GET['idA'])){
             if($comment){
                 if($comment->idArticle == $_GET['idA'] && isset($_GET['a'])){
                     if($_GET['a'] == 'e') {
+                        if(!$user->editComment && !$user->isAdministrator)
+                            header("Location : comments?idA={$_GET['idA']}");
+
                         if(isset($_POST['formEditComment'])){
                             if(isset($_POST['content'])){
                                 $comment->editComment($_POST);
@@ -28,6 +32,9 @@ if(isset($_GET['idA'])){
                         }
                         $wp->appendContent($formEditComment);
                     } elseif($_GET['a'] == 'd') {
+                        if(!$user->deleteComment && !$user->isAdministrator)
+                            header("Location : comments?idA={$_GET['idA']}");
+
                         if(isset($_POST['formDeleteComment'])){
                             $comment->deleteComment();
                             header("Location: comments.php?idA=" . $_GET['idA']);

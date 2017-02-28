@@ -9,14 +9,12 @@ if(isset($_GET['id'])){
         $wp->appendContent($article->displayArticle(false));
         $categoryArticle = Category::getCategory($article->idCategory);
         $breadcrumb = $categoryArticle->getBreadcrumb();
-        $wp->appendContent("Vous êtes ici: " . $breadcrumb . " > " . "<a href='articles.php?id=" . $article->idArticle . "'>" . $article->titleArticle . "</a>");
+        $wp->appendContent("<div class='row'><div class='col-md-10 col-md-offset-1'><ol class='breadcrumb'>" . $breadcrumb . "<li><a href='articles.php?id=" . $article->idArticle . "'>" . $article->titleArticle . "</a></li></ol></div></div>");
     } else {
         header("Location: index.php");
     }
 } else {
     header("Location: index.php");
 }
-
-$wp->appendCssUrl('style/'. $siteOptions['theme'] . '/style.css');
 
 echo $wp->toHTML();

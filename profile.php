@@ -31,8 +31,6 @@ if(isset($_POST['formEditEmail'])){
 
 $wp = new WebPage("Profil");
 
-$wp->appendCssUrl("style/default/style.css");
-
 if($user->isAdministrator && isset($_GET['action']) && $_GET['action'] == "delete" && isset($_GET['i']) && $_GET['i'] == "admin" ){
     $wp->appendContent("Vous ne pouvez pas supprimer votre compte car vous êtes administrateur");
 }

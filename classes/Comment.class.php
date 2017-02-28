@@ -109,10 +109,16 @@ class Comment {
 		return $res;
 	}
 
-	public static function getCommentsPerArticle($idArticle) {
+	public static function getCommentsPerArticle($idArticle, $limit = null) {
 		$bdd = MyPDO::getInstance();
 
-		$pdo = $bdd->prepare("SELECT * FROM comment WHERE idArticle = ?");
+		$req = "";
+
+		if(!is_null($limit)){
+            $req = " LIMIT " . $limit['limit'] . " OFFSET " . $limit['offset'];
+        }
+
+		$pdo = $bdd->prepare("SELECT * FROM comment WHERE idArticle = ?" . $req);
 		$pdo->setFetchMode(PDO::FETCH_CLASS, __CLASS__);
 
 		$pdo->execute(array($idArticle));
@@ -126,7 +132,16 @@ class Comment {
 		return $res;
 	}
 
-	public static function displayComments($idArticle){
+	public static function countComments($idArticle){
+		$bdd = MyPDO::getInstance();
+
+		$pdo = $bdd->prepare("SELECT COUNT(*) as nbComments FROM comment WHERE idArticle = ?");
+		$pdo->execute([$idArticle]);
+
+		return $pdo->fetch()['nbComments'];
+	}
+
+	public static function displayComments($comments){
 		$html = '<div>';
 
 		$comments = self::getCommentsPerArticle($idArticle);
@@ -203,6 +218,123 @@ HTML;
 
 		return $html;
 	}
+
+	public static function displayPagination($pageActu, $pageMax, $idArticle){
+        $html = <<<HTML
+        <ul class="pagination">
+HTML;
+        if($pageActu > 1){
+            $html .= <<<HTML
+            <li>
+                <a href="?idA=$idArticle&p=1">&laquo;</a>
+            </li>
+            <li>
+                <a href="?idA=$idArticle&p=1">1</a>
+            </li>
+HTML;
+        } else {
+            $html .= <<<HTML
+            <li class="disabled">
+                <a href="?idA=$idArticle&p=1">&laquo;</a>
+            </li>
+            <li class="disabled">
+                <a href="?idA=$idArticle&p=1">1</a>
+            </li>
+HTML;
+        }
+
+        if($pageActu > 3){
+            $html .= <<<HTML
+            <li>
+                <a href="?idA=$idArticle&p=2">2</a>
+            </li>
+HTML;
+        }
+
+        if($pageActu > 4){
+            $html .= <<<HTML
+            <li class="disabled">
+                <a href="#">...</a>
+            </li>
+HTML;
+        }
+
+
+        if($pageActu > 2){
+            $pageActuMoinsUn = $pageActu - 1;
+            $html .= <<<HTML
+            <li>
+                <a href="?idA=$idArticle&p=$pageActuMoinsUn">$pageActuMoinsUn</a>
+            </li>
+HTML;
+        }
+
+        if($pageActu > 1){
+            $html .= <<<HTML
+            <li class="disabled">
+                <a href="?idA=$idArticle&p=$pageActu">$pageActu</a>
+            </li>
+HTML;
+        }
+
+
+        if($pageActu < $pageMax){
+            $pageActuPlusUn = $pageActu + 1;
+            $html .= <<<HTML
+            <li>
+                <a href="?idA=$idArticle&p=$pageActuPlusUn">$pageActuPlusUn</a>
+            </li>
+HTML;
+        }
+        if($pageActu < $pageMax - 3){
+            $pageMaxMoinsUn = $pageMax - 1;
+            $html .= <<<HTML
+            <li class="disabled">
+                <a href="#">...</a>
+            </li>
+            <li>
+                <a href="?idA=$idArticle&p=$pageMaxMoinsUn">$pageMaxMoinsUn</a>
+            </li>
+HTML;
+        } elseif($pageActu < $pageMax - 2){
+            $pageMaxMoinsUn = $pageMax - 1;
+            $html .= <<<HTML
+            <li>
+                <a href="?idA=$idArticle&p=$pageMaxMoinsUn">$pageMaxMoinsUn</a>
+            </li>
+HTML;
+        }
+
+        if($pageActu < $pageMax){
+            if($pageActu != $pageMax - 1){
+            $html .= <<<HTML
+            <li>
+                <a href="?idA=$idArticle&p=$pageMax">$pageMax</a>
+            </li>
+HTML;
+            }
+            $html .= <<<HTML
+            <li>
+                <a href="?idA=$idArticle&p=$pageMax">&raquo;</a>
+            </li>
+HTML;
+        } else {
+            $html .= <<<HTML
+            <li class="disabled">
+                <a href="?idA=$idArticle&p=$pageMax">&raquo;</a>
+            </li>
+HTML;
+        }
+
+        $html .= "</ul>";
+        return <<<HTML
+        <div class="row text-center">
+        	<div class="col-md-4 col-md-offset-4">
+        		$html
+        	</div>
+        </div>
+HTML;
+    }
 
 	public static function formAddComment($data = array(), $info = "")
 	{

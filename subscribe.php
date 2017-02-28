@@ -26,6 +26,5 @@ HTML
 
 $wp = new WebPage("Inscription");
 
-$wp->appendCssUrl("style/default/style.css");
 $wp->appendContent($formAddUser);
 echo $wp->toHTML();

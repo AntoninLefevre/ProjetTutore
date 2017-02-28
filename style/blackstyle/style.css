@@ -1,13 +1,31 @@
 body {
     background: url(img/background.png);
+    color: white;
 }
 
-.form-control, .checkbox{
+.form-control, .form-horizontal .checkbox{
     margin-bottom: 15px;
+}
+
+.panel-body {
+    color: black;
 }
 
 .navbar-default {
     background: transparent;
+}
+
+.navbar-default .navbar-brand, .navbar-default .navbar-nav > li > a {
+    color: white;
+}
+
+.navbar-default .navbar-brand:focus, .navbar-default .navbar-nav > li > a:focus, .navbar-default .navbar-brand:hover, .navbar-default .navbar-nav > li > a:hover {
+    color: #CECECE;
+}
+
+.table-bordered > tbody > tr:nth-child(odd) > th, .table-bordered > tbody > tr:nth-child(odd) > td {
+
+    color: black;
 }
 
 .dropdown-parent:hover > ul.dropdown-menu {
@@ -90,7 +108,7 @@ body {
 
 @media (min-width: 768px) {
     .navbar-default {
-        border-color: black;
+        border-color: white;
     }
     .navbar .navbar-nav {
         display: inline-block;

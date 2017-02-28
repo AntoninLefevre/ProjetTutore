@@ -52,7 +52,6 @@ if(isset($_POST['formConnection'])){
 
 $wp = new WebPage("Connexion");
 
-$wp->appendCssUrl("style/default/style.css");
 $wp->appendContent($formConnection);
 
 echo $wp->toHTML();

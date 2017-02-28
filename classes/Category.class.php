@@ -144,7 +144,7 @@ class Category {
 		$breadcrumb = "<a href='categories.php?id=" . $this->idCategory . "'>" . $this->lblCategory . '</a>';
 		if(!is_null($this->idCategoryParent)){
 			$categoryParent = Category::getCategory($this->idCategoryParent);
-			$breadcrumb = $categoryParent->getBreadcrumb() . " > " . $breadcrumb;
+			$breadcrumb = "<li>" . $categoryParent->getBreadcrumb() . "</li><li class='active'>" . $breadcrumb . "</li>";
 		}
 
 		return $breadcrumb;
@@ -294,14 +294,20 @@ HTML;
 
 	public function formDeleteCategory($info = ""){
 		$html = <<<HTML
-		<div class="col-md-8 col-md-offset-2 text-center">En supprimant la catégorie {$this->lblCategory}, toutes les catégories enfants ainsi que leurs articles seront supprimés</div>
-		<div class="col-md-4 col-md-offset-4 text-center">
-	        <form action="" method="post" class="form-inline">
-	            <p>Supprimer la categorie {$this->lblCategory} ?</p>
-	            <input type="submit" name="formDeleteCategory" value="Confirmer" class="btn btn-primary">
-	            <input type="submit" name="cancelDeleteCategory" value="Annuler" class="btn btn-danger">
-	        </form>
-	    </div>
+		<div class="row">
+			<div class="col-md-8 col-md-offset-2 text-center">
+				En supprimant la catégorie {$this->lblCategory}, toutes les catégories enfants ainsi que leurs articles seront supprimés
+			</div>
+		</div>
+		<div class="row">
+			<div class="col-md-4 col-md-offset-4 text-center">
+		        <form action="" method="post" class="form-inline">
+		            <p>Supprimer la categorie {$this->lblCategory} ?</p>
+		            <input type="submit" name="formDeleteCategory" value="Confirmer" class="btn btn-primary">
+		            <input type="submit" name="cancelDeleteCategory" value="Annuler" class="btn btn-danger">
+		        </form>
+		    </div>
+		</div>
 HTML;
         return $html;
 	}
@@ -346,8 +352,8 @@ HTML;
 				<tr>
 					<td>{$category->lblCategory}</td>
 					<td>$lblCategoryParent</td>
-					<td><a href="categorys.php?id={$category->idCategory}&a=e">Modifier</a></td>
-					<td><a href="categorys.php?id={$category->idCategory}&a=d">Supprimer</a></td>
+					<td><a href="?id={$category->idCategory}&a=e">Modifier</a></td>
+					<td><a href="?id={$category->idCategory}&a=d">Supprimer</a></td>
 				</tr>
 HTML;
 				if(!is_null($category->categoryChildren))
@@ -367,8 +373,8 @@ HTML;
 			<tr>
 				<td>{$categoryChild->lblCategory}</td>
 				<td>{$this->lblCategory}</td>
-				<td><a href="categorys.php?id={$categoryChild->idCategory}&a=e">Modifier</a></td>
-				<td><a href="categorys.php?id={$categoryChild->idCategory}&a=d">Supprimer</a></td>
+				<td><a href="?id={$categoryChild->idCategory}&a=e">Modifier</a></td>
+				<td><a href="?id={$categoryChild->idCategory}&a=d">Supprimer</a></td>
 			</tr>
 HTML;
 			if(!is_null($categoryChild->categoryChildren))
@@ -490,12 +496,13 @@ HTML;
 
 		if(!is_null($categories)){
 			$html .= <<<HTML
-			<div class="col-md-8 col-md-offset-2">
-	        <div class="table-responsive">
-	        	<table class="table table-bordered table-striped">
-					<tr>
-						<th>Catégorie</th>
-					</tr>
+			<div class="row">
+				<div class="col-md-8 col-md-offset-2">
+			        <div class="table-responsive">
+			        	<table class="table table-bordered table-striped">
+							<tr>
+								<th>Catégorie</th>
+							</tr>
 HTML;
 			foreach ($categories as $category) {
 				$html .= <<<HTML
@@ -505,17 +512,18 @@ HTML;
 HTML;
 			}
 
-			$html .= "</table></div></div>";
+			$html .= "</table></div></div></div>";
 		}
 
 		if($articles){
 			$html .= <<<HTML
-			<div class="col-md-8 col-md-offset-2">
-	        <div class="table-responsive">
-	        	<table class="table table-bordered table-striped">
-					<tr>
-						<th>Articles</th>
-					</tr>
+			<div class="row">
+				<div class="col-md-8 col-md-offset-2">
+		        <div class="table-responsive">
+		        	<table class="table table-bordered table-striped">
+						<tr>
+							<th>Articles</th>
+						</tr>
 HTML;
 			foreach ($articles as $article) {
 				$html .= <<<HTML
@@ -525,7 +533,7 @@ HTML;
 HTML;
 			}
 
-			$html .= "</table></div></div>";
+			$html .= "</table></div></div></div>";
 		}
 
 

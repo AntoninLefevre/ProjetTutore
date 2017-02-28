@@ -4,15 +4,16 @@ require_once('autoload.inc.php');
 
 $user = User::createFromSession();
 
-if($user->redacArticle == 0){
+if(!$user->redacArticle && !$user->editOwnArticle && !$user->deleteOwnArticle && !$user->isAdministrator){
     header("Location: index.php");
 }
 
 $wp = new WebPage('Articles', false);
 
-$wp->appendCssUrl('../style/default/style.css');
-
 if(isset($_GET['a'])){
+    if(!$user->redacArticle && !$user->isAdministrator)
+        header("Location: articles.php");
+
     if($_GET['a'] == 'a'){
         if(isset($_POST['formRedacArticle'])){
             if(isset($_POST['title']) && isset($_POST['content']) && isset($_POST['category'])){
@@ -35,6 +36,9 @@ if(isset($_GET['a'])){
             if(!$article){
                 header('Location: articles.php');
             } else {
+                if((!$user->editOwnArticle || $user->idUser != $article->idUser) && !$user->isAdministrator)
+                    header("Location: articles.php");
+
                 if(isset($_POST['formEditArticle'])){
                     if(isset($_POST['title']) && isset($_POST['content']) && isset($_POST['category'])){
                         $res = $article->editArticle($_POST);
@@ -60,6 +64,9 @@ if(isset($_GET['a'])){
             if(!$article){
                 header('Location: articles.php');
             } else {
+                if((!$user->deleteOwnArticle || $user->idUser != $article->idUser) && !$user->isAdministrator)
+                    header("Location: articles.php");
+
                 if(isset($_POST['formDeleteArticle'])){
                     $article->deleteArticle();
                     $formDeleteArticle = Article::displayArticles("L'article a été supprimé");

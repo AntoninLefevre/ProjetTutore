@@ -6,8 +6,6 @@ $user = User::createFromSession();
 
 $wp = new WebPage("Messages privés");
 
-$wp->appendCssUrl("style/" . $siteOptions['theme'] . "/style.css");
-
 if(isset($_GET['id'])){
     $pm = PrivateMessage::getPM($_GET['id']);
     if($pm){

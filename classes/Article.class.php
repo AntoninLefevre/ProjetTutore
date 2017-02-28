@@ -108,6 +108,16 @@ class Article {
 		return $res;
 	}
 
+    public static function countArticles(){
+        $bdd = MyPDO::getInstance();
+
+        $pdo = $bdd->prepare("SELECT COUNT(*) as nbArticles FROM article");
+        $pdo->execute();
+        $res = $pdo->fetch();
+
+        return $res['nbArticles'];
+    }
+
     public static function getArticlesPerCategory($categories, $limit = null){
         $where = implode(" OR idCategory = ", $categories);
         $bdd = MyPDO::getInstance();
@@ -131,6 +141,17 @@ class Article {
         return $res;
     }
 
+    public static function countArticlesPerCategory($categories){
+        $where = implode(" OR idCategory = ", $categories);
+        $bdd = MyPDO::getInstance();
+
+        $pdo = $bdd->prepare("SELECT COUNT(*) as nbArticles FROM article WHERE idCategory = " . $where);
+        $pdo->execute();
+        $res = $pdo->fetch();
+
+        return $res['nbArticles'];
+    }
+
     public function displayArticle(){
         $content = str_replace('src="../images/', 'src="images/', $this->contentArticle);
         $datetime = strftime("le %d/%m/%Y à %T ", strtotime($this->datetimeArticle));
@@ -146,8 +167,15 @@ class Article {
                     <div class="panel-body">
                         $content
                     </div>
-                    <div class="panel-footer text-right">
+                    <div class="panel-footer">
+                        <div class="row">
+                        <div class="col-md-5">
+                            <a href="forum.php?idA={$_GET['id']}">Commenter</a>
+                        </div>
+                        <div class="col-md-6 col-md-offset-1 text-right">
                         Publié $datetime par $auteur
+                        </div>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -159,8 +187,11 @@ HTML;
 
     public static function displayArticles($info = ""){
         $articles = Article::getArticles();
+
+        $redacArticle = ($_SESSION['user']->redacArticle || $_SESSION['user']->isAdministrator) ? '<a href="?a=a">Rédiger un article</a>' : "";
+
         $html = <<<HTML
-        <a href="?a=a">Rédiger un article</a>
+        $redacArticle
         $info
         <div class="table-responsive">
         <table class="table table-bordered table-striped">
@@ -469,8 +500,7 @@ HTML;
         return true;
     }
 
-    public function displayComment(){
-        $comments = Comment::getCommentsPerArticle($this->idArticle);
+    public function displayComment($comments){
 
         $html = "";
 
@@ -500,6 +530,123 @@ HTML;
 
 
         return $html;
+    }
+
+    public static function displayPagination($pageActu, $pageMax){
+        $html = <<<HTML
+        <ul class="pagination">
+HTML;
+        if($pageActu > 1){
+            $html .= <<<HTML
+            <li>
+                <a href="?p=1">&laquo;</a>
+            </li>
+            <li>
+                <a href="?p=1">1</a>
+            </li>
+HTML;
+        } else {
+            $html .= <<<HTML
+            <li class="disabled">
+                <a href="?p=1">&laquo;</a>
+            </li>
+            <li class="disabled">
+                <a href="?p=1">1</a>
+            </li>
+HTML;
+        }
+
+        if($pageActu > 3){
+            $html .= <<<HTML
+            <li>
+                <a href="?p=2">2</a>
+            </li>
+HTML;
+        }
+
+        if($pageActu > 4){
+            $html .= <<<HTML
+            <li class="disabled">
+                <a href="#">...</a>
+            </li>
+HTML;
+        }
+
+
+        if($pageActu > 2){
+            $pageActuMoinsUn = $pageActu - 1;
+            $html .= <<<HTML
+            <li>
+                <a href="?p=$pageActuMoinsUn">$pageActuMoinsUn</a>
+            </li>
+HTML;
+        }
+
+        if($pageActu > 1){
+            $html .= <<<HTML
+            <li class="disabled">
+                <a href="?p=$pageActu">$pageActu</a>
+            </li>
+HTML;
+        }
+
+
+        if($pageActu < $pageMax){
+            $pageActuPlusUn = $pageActu + 1;
+            $html .= <<<HTML
+            <li>
+                <a href="?p=$pageActuPlusUn">$pageActuPlusUn</a>
+            </li>
+HTML;
+        }
+        if($pageActu < $pageMax - 3){
+            $pageMaxMoinsUn = $pageMax - 1;
+            $html .= <<<HTML
+            <li class="disabled">
+                <a href="#">...</a>
+            </li>
+            <li>
+                <a href="?p=$pageMaxMoinsUn">$pageMaxMoinsUn</a>
+            </li>
+HTML;
+        } elseif($pageActu < $pageMax - 2){
+            $pageMaxMoinsUn = $pageMax - 1;
+            $html .= <<<HTML
+            <li>
+                <a href="?p=$pageMaxMoinsUn">$pageMaxMoinsUn</a>
+            </li>
+HTML;
+        }
+
+        if($pageActu < $pageMax){
+            if($pageActu != $pageMax - 1){
+            $html .= <<<HTML
+            <li>
+                <a href="?p=$pageMax">$pageMax</a>
+            </li>
+HTML;
+            }
+            $html .= <<<HTML
+            <li>
+                <a href="?p=$pageMax">&raquo;</a>
+            </li>
+HTML;
+        } else {
+            $html .= <<<HTML
+            <li class="disabled">
+                <a href="?p=$pageMax">&raquo;</a>
+            </li>
+HTML;
+        }
+
+        $html .= "</ul>";
+        return <<<HTML
+        <div class="row text-center">
+            <div class="col-md-4 col-md-offset-4">
+                $html
+            </div>
+        </div>
+HTML;
     }
 }
 ?>

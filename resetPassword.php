@@ -25,8 +25,6 @@ if(isset($_POST['formResetPasswordEmail'])){
 
 $wp = new WebPage("Oubli de mot de passe");
 
-$wp->appendCssUrl("style/default/style.css");
-
 $wp->appendContent($formResetPassword);
 
 echo $wp->toHTML();

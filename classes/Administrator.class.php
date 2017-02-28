@@ -52,16 +52,48 @@ HTML;
 
 		$listThemes .= "</select>";
 		$html = <<<HTML
-		<div class="col-md-2 col-md-offset-5">
-			<form action="" method="post" class="form-horizontal text-center">
-				<input type="text" name="siteName" placeholder="Nom du site" value="$siteName" class="form-control">
-				<input type="text" name="siteDescription" placeholder="Nom du site" value="$siteDescription" class="form-control">
-				<input type="text" name="adminEmail" placeholder="Nom du site" value="$adminEmail" class="form-control">
-				<input type="number" name="articlesPerPage" placeholder="Nom du site" value="$articlesPerPage" class="form-control">
-				<input type="number" name="commentsPerPage" placeholder="Nom du site" value="$commentsPerPage" class="form-control">
-				$listThemes
-				<input type="submit" name="formOptionsSite">
-			</form>
+		<div class="row">
+			<div class="col-md-8 col-md-offset-2">
+				<form action="" method="post" class="form-horizontal text-center">
+					<div class="form-group">
+						<label class="control-label col-md-5">Nom du site: </label>
+						<div class="col-md-7">
+							<input type="text" name="siteName" placeholder="Nom du site" value="$siteName" class="form-control">
+						</div>
+					</div>
+					<div class="form-group">
+						<label class="control-label col-md-5">Description: </label>
+						<div class="col-md-7">
+							<input type="text" name="siteDescription" placeholder="Description du site" value="$siteDescription" class="form-control">
+						</div>
+					</div>
+					<div class="form-group">
+						<label class="control-label col-md-5">Adresse de contact: </label>
+						<div class="col-md-7">
+							<input type="text" name="adminEmail" placeholder="E-mail de contact" value="$adminEmail" class="form-control">
+						</div>
+					</div>
+					<div class="form-group">
+						<label class="control-label col-md-5">Articles par page: </label>
+						<div class="col-md-7">
+							<input type="number" name="articlesPerPage" placeholder="Nombre d'articles par page" value="$articlesPerPage" class="form-control">
+						</div>
+					</div>
+					<div class="form-group">
+						<label class="control-label col-md-5">Commentaires par page: </label>
+						<div class="col-md-7">
+							<input type="number" name="commentsPerPage" placeholder="Nombre de commentaires par page" value="$commentsPerPage" class="form-control">
+						</div>
+					</div>
+					<div class="form-group">
+						<label class="control-label col-md-5">Thème: </label>
+						<div class="col-md-7">
+							$listThemes
+						</div>
+					</div>
+					<input type="submit" name="formOptionsSite" class="btn btn-default">
+				</form>
+			</div>
 		</div>
 HTML;
 		return $html;
@@ -101,18 +133,20 @@ HTML;
 		$editComment = $user->editComment ? "checked" : "";
 		$deleteComment = $user->deleteComment ? "checked" : "";
 		$html = <<<HTML
-		<div class="col-md-4 col-md-offset-4">
-			<form action="" method="post" class="form-horizontal text-center">
-				$info
-				<input type="text" name="nickname" placeholder="Pseudo" value="{$user->nicknameUser}" class="form-control">
-				<input type="text" name="email" placeholder="E-mail" value="{$user->emailUser}" class="form-control">
-				<div class="checkbox"><label><input type="checkbox" name="redacArticle" $redacArticle> Rédiger un article</label></div>
-				<div class="checkbox"><label><input type="checkbox" name="editOwnArticle" $editOwnArticle> Modifier ses articles</label></div>
-				<div class="checkbox"><label><input type="checkbox" name="deleteOwnArticle" $deleteOwnArticle> Supprimer ses articles</label></div>
-				<div class="checkbox"><label><input type="checkbox" name="editComment" $editComment></label> Modifier des commentaires</div>
-				<div class="checkbox"><label><input type="checkbox" name="deleteComment" $deleteComment>Supprimer des commentaires</label></div>
-				<input type="submit" value="Modifier" name="formEditProfileUser" class="btn btn-default">
-			</form>
+		<div class="row">
+			<div class="col-md-4 col-md-offset-4">
+				<form action="" method="post" class="form-horizontal text-center">
+					$info
+					<input type="text" name="nickname" placeholder="Pseudo" value="{$user->nicknameUser}" class="form-control">
+					<input type="text" name="email" placeholder="E-mail" value="{$user->emailUser}" class="form-control">
+					<div class="checkbox"><label><input type="checkbox" name="redacArticle" $redacArticle> Rédiger un article</label></div>
+					<div class="checkbox"><label><input type="checkbox" name="editOwnArticle" $editOwnArticle> Modifier ses articles</label></div>
+					<div class="checkbox"><label><input type="checkbox" name="deleteOwnArticle" $deleteOwnArticle> Supprimer ses articles</label></div>
+					<div class="checkbox"><label><input type="checkbox" name="editComment" $editComment></label> Modifier des commentaires</div>
+					<div class="checkbox"><label><input type="checkbox" name="deleteComment" $deleteComment>Supprimer des commentaires</label></div>
+					<input type="submit" value="Modifier" name="formEditProfileUser" class="btn btn-default">
+				</form>
+			</div>
 		</div>
 HTML;
 
@@ -144,13 +178,15 @@ HTML;
 
 	public static function formDeleteProfileUser($user, $info = ""){
 		$html = <<<HTML
-		<div>
-			<form action="" method="post" class="form-horizontal text-center">
-				$info
-				<p>Voulez-vous vraiment supprimer {$user->nicknameUser} ?</p>
-				<input type="submit" value="Supprimer" name="formDeleteProfileUser" class="btn btn-primary">
-				<input type="submit" value="Annuler" name="cancelDeleteProfileUser" class="btn btn-danger">
-			</form>
+		<div class="row">
+			<div class="col-md-4 col-md-offset-4">
+				<form action="" method="post" class="form-horizontal text-center">
+					$info
+					<p>Voulez-vous vraiment supprimer {$user->nicknameUser} ?</p>
+					<input type="submit" value="Supprimer" name="formDeleteProfileUser" class="btn btn-primary">
+					<input type="submit" value="Annuler" name="cancelDeleteProfileUser" class="btn btn-danger">
+				</form>
+			</div>
 		</div>
 HTML;
 

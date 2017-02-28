@@ -157,12 +157,14 @@ HTML
             $path = "../" . "style/" . $siteOptionsTheme . "/";
         else
             $path = "style/" . $siteOptionsTheme . "/";
-        $files = parse_ini_file($path . "files.ini");
-        if(array_key_exists('css', $files)){
-            $filesCss = parse_ini_file($path . "files.ini")['css'];
-            if(!is_null($filesCss)){
-                foreach ($filesCss as $fileCss) {
-                    $this->appendCssUrl($path . $fileCss);
+        if(file_exists($path . "files.ini")){
+            $files = parse_ini_file($path . "files.ini");
+            if(array_key_exists('css', $files)){
+                $filesCss = parse_ini_file($path . "files.ini")['css'];
+                if(!is_null($filesCss)){
+                    foreach ($filesCss as $fileCss) {
+                        $this->appendCssUrl($path . $fileCss);
+                    }
                 }
             }
         }
@@ -174,12 +176,14 @@ HTML
             $path = "../" . "style/" . $siteOptionsTheme . "/";
         else
             $path = "style/" . $siteOptionsTheme . "/";
-        $files = parse_ini_file($path . "files.ini");
-        if(array_key_exists('js', $files)){
-            $filesJs = $files['js'];
-            if(!is_null($filesJs)){
-                foreach ($filesJs as $fileJs) {
-                    $this->appendJsUrl($path . $fileJs);
+        if(file_exists($path . "files.ini")){
+            $files = parse_ini_file($path . "files.ini");
+            if(array_key_exists('js', $files)){
+                $filesJs = $files['js'];
+                if(!is_null($filesJs)){
+                    foreach ($filesJs as $fileJs) {
+                        $this->appendJsUrl($path . $fileJs);
+                    }
                 }
             }
         }
@@ -270,7 +274,7 @@ HTML;
         }
 
         if($_SESSION['user']->isAdministrator){
-            $html .= "<li><a href='categorys.php'>Catégories</a></li>\n";
+            $html .= "<li><a href='categories.php'>Catégories</a></li>\n";
             $html .= "<li><a href='users.php'>Membres</a></li>\n";
         }
 
@@ -291,7 +295,7 @@ HTML;
     public function setFooter(){
         $site = Site::getOptions();
         $this->footer = <<<HTML
-        <div class="footer text-center">
+        <div class="footer row text-center">
             Tous droits réservés © {$site['siteName']} - Propulsé par <a href="https://github.com/AntoninLefevre/">Antonin Lefevre</a>
         </div>
 HTML;

@@ -149,29 +149,38 @@ class PrivateMessage {
 
 	public static function displayPMs($PMs) {
 		$html = <<<HTML
-		<div class="table-responsive">
-			<table class="table table-bordered table-striped">
-				<tr>
-					<th>Objet</th>
-					<th>Expéditeur</th>
-					<th>Date de réception</th>
-				</tr>
+		<div class="row">
+			<div class="table-responsive">
+				<table class="table table-bordered table-striped">
+					<tr>
+						<th>Objet</th>
+						<th>Expéditeur</th>
+						<th>Date de réception</th>
+					</tr>
 HTML;
 
 		foreach ($PMs as $pm) {
 			$sender = User::getUser($pm->idSender);
             $datetime = strftime("le %d/%m/%Y à %T ", strtotime($pm->datetimePM));
-            $style = $pm->isRead ? "style='color:blue'" : "style='color:green'";
+            if($pm->isRead){
+            	$title = <<<HTML
+				<td><a href="?id={$pm->idPM}">{$pm->titlePM}</a></td>
+HTML;
+            } else {
+            	$title = <<<HTML
+				<td><strong><a href="?id={$pm->idPM}">{$pm->titlePM}</a></strong></td>
+HTML;
+            }
 			$html .= <<<HTML
 			<tr>
-				<td><a $style href="?id={$pm->idPM}">{$pm->titlePM}</a></td>
+				$title
 				<td>{$sender->nicknameUser}</td>
 				<td>$datetime</td>
 			</tr>
 HTML;
 		}
 
-		$html .= "</table></div>";
+		$html .= "</table></div></div>";
 
 		return $html;
 	}
