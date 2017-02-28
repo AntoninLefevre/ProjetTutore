@@ -106,7 +106,7 @@ HTML;
 
 		$keys = array_keys($data);
 
-		$pdo = $bdd->prepare("UPDATE optionsite SET valueOptionSite = ? WHERE nameOptionSite = ?");
+		$pdo = $bdd->prepare("UPDATE " . PREFIXTABLE ."optionsite SET valueOptionSite = ? WHERE nameOptionSite = ?");
 
 		foreach ($keys as $key) {
 			$pdo->execute(array($data[$key], $key));
@@ -169,7 +169,7 @@ HTML;
 
 		$bdd = MyPDO::getInstance();
 
-		$pdo = $bdd->prepare("UPDATE user SET nicknameUser = ?, emailUser = ?, redacArticle = ?, editOwnArticle = ?, deleteOwnArticle = ?, editComment = ?, deleteComment = ? WHERE idUser = ?");
+		$pdo = $bdd->prepare("UPDATE " . PREFIXTABLE ."user SET nicknameUser = ?, emailUser = ?, redacArticle = ?, editOwnArticle = ?, deleteOwnArticle = ?, editComment = ?, deleteComment = ? WHERE idUser = ?");
 
 		$pdo->execute(array($data['nickname'], $data['email'], $redacArticle, $editOwnArticle, $deleteOwnArticle, $editComment, $deleteComment, $idUser));
 
@@ -196,7 +196,7 @@ HTML;
 	public static function deleteProfileUser($idUser){
 		$bdd = MyPDO::getInstance();
 
-		$pdo = $bdd->prepare("DELETE FROM user WHERE idUser = ?");
+		$pdo = $bdd->prepare("DELETE FROM " . PREFIXTABLE ."user WHERE idUser = ?");
 		$pdo->execute(array($idUser));
 
 		return true;

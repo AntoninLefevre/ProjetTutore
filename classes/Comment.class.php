@@ -72,7 +72,7 @@ class Comment {
 	public static function getComment($idComment) {
 		$bdd = MyPDO::getInstance();
 
-		$pdo = $bdd->prepare("SELECT * FROM comment WHERE idComment = ?");
+		$pdo = $bdd->prepare("SELECT * FROM " . PREFIXTABLE ."comment WHERE idComment = ?");
 		$pdo->setFetchMode(PDO::FETCH_CLASS, __CLASS__);
 
 		$pdo->execute(array($idComment));
@@ -95,7 +95,7 @@ class Comment {
 	public static function getComments() {
 		$bdd = MyPDO::getInstance();
 
-		$pdo = $bdd->prepare("SELECT * FROM comment");
+		$pdo = $bdd->prepare("SELECT * FROM " . PREFIXTABLE ."comment");
 		$pdo->setFetchMode(PDO::FETCH_CLASS, __CLASS__);
 
 		$pdo->execute();
@@ -118,7 +118,7 @@ class Comment {
             $req = " LIMIT " . $limit['limit'] . " OFFSET " . $limit['offset'];
         }
 
-		$pdo = $bdd->prepare("SELECT * FROM comment WHERE idArticle = ?" . $req);
+		$pdo = $bdd->prepare("SELECT * FROM " . PREFIXTABLE ."comment WHERE idArticle = ?" . $req);
 		$pdo->setFetchMode(PDO::FETCH_CLASS, __CLASS__);
 
 		$pdo->execute(array($idArticle));
@@ -135,7 +135,7 @@ class Comment {
 	public static function countComments($idArticle){
 		$bdd = MyPDO::getInstance();
 
-		$pdo = $bdd->prepare("SELECT COUNT(*) as nbComments FROM comment WHERE idArticle = ?");
+		$pdo = $bdd->prepare("SELECT COUNT(*) as nbComments FROM " . PREFIXTABLE ."comment WHERE idArticle = ?");
 		$pdo->execute([$idArticle]);
 
 		return $pdo->fetch()['nbComments'];
@@ -368,7 +368,7 @@ HTML;
         if($data['captcha'] != $_SESSION['captcha'])
             return false;
 
-		$pdo = $bdd->prepare("INSERT INTO comment VALUES(NULL, ?, NOW(), ?, ?)");
+		$pdo = $bdd->prepare("INSERT INTO " . PREFIXTABLE ."comment VALUES(NULL, ?, NOW(), ?, ?)");
 		$pdo->execute(array(htmlentities($data['content']), $idArticle, $_SESSION['user']->idUser));
 
 		return true;
@@ -397,7 +397,7 @@ HTML;
 	{
 		$bdd = MyPDO::getInstance();
 
-		$pdo = $bdd->prepare("UPDATE comment SET contentComment = ? WHERE idComment = ?");
+		$pdo = $bdd->prepare("UPDATE " . PREFIXTABLE ."comment SET contentComment = ? WHERE idComment = ?");
 		$pdo->execute(array(htmlentities($data['content']), $this->idComment));
 
 		return true;
@@ -438,7 +438,7 @@ HTML;
 	{
 		$bdd = MyPDO::getInstance();
 
-		$pdo = $bdd->prepare("DELETE FROM comment WHERE idComment = ?");
+		$pdo = $bdd->prepare("DELETE FROM " . PREFIXTABLE ."comment WHERE idComment = ?");
 		$pdo->execute(array($this->idComment));
 
 		return true;

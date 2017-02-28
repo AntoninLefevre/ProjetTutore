@@ -5,7 +5,7 @@ include_once('autoload.inc.php');
 if(isset($_GET['id'])){
     $article = Article::getArticle($_GET['id']);
     if($article){
-        $wp = new Webpage($siteOptions['siteName'] . " - " . $article->titleArticle);
+        $wp = new WebPage($siteOptions['siteName'] . " - " . $article->titleArticle);
         $wp->appendContent($article->displayArticle(false));
         $categoryArticle = Category::getCategory($article->idCategory);
         $breadcrumb = $categoryArticle->getBreadcrumb();

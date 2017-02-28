@@ -84,7 +84,7 @@ class PrivateMessage {
 
 	public static function getPM($idPM) {
 		$bdd = MyPDO::getInstance();
-		$pdo = $bdd->prepare("SELECT * FROM privatemessage WHERE idPM = ?");
+		$pdo = $bdd->prepare("SELECT * FROM " . PREFIXTABLE ."privatemessage WHERE idPM = ?");
 		$pdo->setFetchMode(PDO::FETCH_CLASS, __CLASS__);
 		$pdo->execute(array($idPM));
 
@@ -105,7 +105,7 @@ class PrivateMessage {
 
 	public static function getPMsReceiv($idUser) {
 		$bdd = MyPDO::getInstance();
-		$pdo = $bdd->prepare("SELECT * FROM privatemessage WHERE idReceiver = ?");
+		$pdo = $bdd->prepare("SELECT * FROM " . PREFIXTABLE ."privatemessage WHERE idReceiver = ?");
 		$pdo->setFetchMode(PDO::FETCH_CLASS, __CLASS__);
 		$pdo->execute(array($idUser));
 
@@ -120,7 +120,7 @@ class PrivateMessage {
 
 	public static function getPMsSend($idUSer) {
 		$bdd = MyPDO::getInstance();
-		$pdo = $bdd->prepare("SELECT * FROM privatemessage WHERE idSender = ?");
+		$pdo = $bdd->prepare("SELECT * FROM " . PREFIXTABLE ."privatemessage WHERE idSender = ?");
 		$pdo->setFetchMode(PDO::FETCH_CLASS, __CLASS__);
 		$pdo->execute(array($idUser));
 
@@ -141,7 +141,7 @@ class PrivateMessage {
 			return false;
 		}
 
-		$pdo = $bdd->prepare("INSERT INTO privateMessage VALUES(NULL, ? , ?, NOW(), 0, ?, ?)");
+		$pdo = $bdd->prepare("INSERT INTO " . PREFIXTABLE ."privateMessage VALUES(NULL, ? , ?, NOW(), 0, ?, ?)");
 		$pdo->execute(array(htmlentities($data['title']), htmlentities($data['content']), $_SESSION['user']->idUser, $user->idUser));
 
 		return true;
@@ -211,7 +211,7 @@ HTML;
 	public function setIsRead(){
 		$bdd = MyPDO::getInstance();
 
-		$pdo = $bdd->prepare("UPDATE privatemessage SET isRead = 1 WHERE idPM = ?");
+		$pdo = $bdd->prepare("UPDATE " . PREFIXTABLE ."privatemessage SET isRead = 1 WHERE idPM = ?");
 		$pdo->execute(array($this->idPM));
 
 		return true;

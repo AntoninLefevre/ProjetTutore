@@ -108,7 +108,7 @@ class User {
     public static function getUser($idUser) {
         $bdd = MyPDO::getInstance();
 
-        $pdo = $bdd->prepare("SELECT * FROM user WHERE idUser = ?");
+        $pdo = $bdd->prepare("SELECT * FROM " . PREFIXTABLE ."user WHERE idUser = ?");
         $pdo->execute(array($idUser));
         $pdo->setFetchMode(PDO::FETCH_CLASS, __CLASS__);
 
@@ -124,7 +124,7 @@ class User {
     public static function getUserByNickName($nicknameUser) {
         $bdd = MyPDO::getInstance();
 
-        $pdo = $bdd->prepare("SELECT * FROM user WHERE nicknameUser = ?");
+        $pdo = $bdd->prepare("SELECT * FROM " . PREFIXTABLE ."user WHERE nicknameUser = ?");
         $pdo->execute(array($nicknameUser));
         $pdo->setFetchMode(PDO::FETCH_CLASS, __CLASS__);
 
@@ -140,7 +140,7 @@ class User {
     public static function getUsers() {
         $bdd = MyPDO::getInstance();
 
-        $pdo = $bdd->prepare("SELECT * FROM user");
+        $pdo = $bdd->prepare("SELECT * FROM " . PREFIXTABLE ."user");
         $pdo->execute();
         $pdo->setFetchMode(PDO::FETCH_CLASS, __CLASS__);
 
@@ -208,7 +208,7 @@ HTML;
     public static function userByCookie($data){
         $bdd = MyPDO::getInstance();
 
-        $pdo = $bdd->prepare("SELECT * FROM user WHERE idUser = ?");
+        $pdo = $bdd->prepare("SELECT * FROM " . PREFIXTABLE ."user WHERE idUser = ?");
         $pdo->setFetchMode(PDO::FETCH_CLASS, __CLASS__);
         $pdo->execute([$data[0]]);
 
@@ -270,7 +270,7 @@ HTML;
     public static function createFromCookie($idUser){
         $bdd = MyPDO::getInstance();
 
-        $pdo = $bdd->prepare("SELECT idUser, nicknameUser, emailUser, validUser, redacArticle, editOwnArticle, deleteOwnArticle, editComment, deleteComment, isAdministrator FROM user WHERE idUser = ?");
+        $pdo = $bdd->prepare("SELECT idUser, nicknameUser, emailUser, validUser, redacArticle, editOwnArticle, deleteOwnArticle, editComment, deleteComment, isAdministrator FROM " . PREFIXTABLE ."user WHERE idUser = ?");
         $pdo->setFetchMode(PDO::FETCH_CLASS, __CLASS__);
         $pdo->execute([$idUser]);
         $res = $pdo->fetch();
@@ -297,9 +297,9 @@ HTML;
 		if(empty($data['nickname']) || empty($data['password'])){
 			return false;
 		}
-		$login = $pdo->prepare( 'SELECT idUser, nicknameUser, emailUser, validUser, redacArticle, editOwnArticle, deleteOwnArticle, editComment, deleteComment, isAdministrator
-								FROM user
-								WHERE nicknameUser = ? AND passwordUser = ?');
+		$login = $pdo->prepare( "SELECT idUser, nicknameUser, emailUser, validUser, redacArticle, editOwnArticle, deleteOwnArticle, editComment, deleteComment, isAdministrator
+								FROM " . PREFIXTABLE ."user
+								WHERE nicknameUser = ? AND passwordUser = ?");
         $login->setFetchMode(PDO::FETCH_CLASS, __CLASS__);
 		$login->execute(array($data['nickname'], hash("sha256", $data['password'])));
 		$res = $login->fetch();
@@ -462,14 +462,14 @@ HTML;
 
 		$bdd = MyPDO::getInstance();
 
-		$pdo = $bdd->prepare("SELECT * FROM user WHERE nicknameUser = ?");
+		$pdo = $bdd->prepare("SELECT * FROM " . PREFIXTABLE ."user WHERE nicknameUser = ?");
 		$pdo->execute(array($data['nickname']));
 		$pseudo = $pdo->fetch();
 
 		if($pseudo)
 			$erreurs[] = "Le pseudo est déjà utilisé";
 
-		$pdo = $bdd->prepare("SELECT * FROM user WHERE emailUser = ?");
+		$pdo = $bdd->prepare("SELECT * FROM " . PREFIXTABLE ."user WHERE emailUser = ?");
 		$pdo->execute(array($data['email']));
 		$email = $pdo->fetch();
 
@@ -480,7 +480,7 @@ HTML;
 			return $erreurs;
 
         $validCode = md5(uniqid());
-		$pdo = $bdd->prepare("INSERT INTO USER VALUES(NULL, ?, ?, ?, ?, NULL, NULL, 0, 0, 0, 0, 0, 0)");
+		$pdo = $bdd->prepare("INSERT INTO " . PREFIXTABLE ."user VALUES(NULL, ?, ?, ?, ?, NULL, NULL, 0, 0, 0, 0, 0, 0)");
 		$pdo->execute(array($data['nickname'], $data['email'], hash('sha256', $data['password']), $validCode));
 
         self::validMail($data['email'], $validCode);
@@ -520,7 +520,7 @@ HTML;
         } else {
         	return false;
         }
-        $pdo = $bdd->prepare("SELECT idUser FROM user WHERE emailUser = ? AND $code = ?");
+        $pdo = $bdd->prepare("SELECT idUser FROM " . PREFIXTABLE ."user WHERE emailUser = ? AND $code = ?");
         $pdo->execute(array($data['email'], $data['code']));
         $res = $pdo->fetch();
 
@@ -528,7 +528,7 @@ HTML;
             return false;
         } else {
         	if($code = "validUser"){
-	            $pdo = $bdd->prepare("UPDATE user SET $code = null WHERE idUser = ?");
+	            $pdo = $bdd->prepare("UPDATE " . PREFIXTABLE ."user SET $code = null WHERE idUser = ?");
 	            $pdo->execute(array($res['idUser']));
 	        }
 	        return true;
@@ -562,14 +562,14 @@ HTML;
 
         $resetCode = md5(uniqid());
         $bdd = MyPDO::getInstance();
-        $pdo = $bdd->prepare("SELECT nicknameUser FROM user WHERE emailUser = ?");
+        $pdo = $bdd->prepare("SELECT nicknameUser FROM " . PREFIXTABLE ."user WHERE emailUser = ?");
         $pdo->execute(array($email));
         $res = $pdo->fetch();
         if(empty($res)){
         	return false;
         }
 
-        $pdo = $bdd->prepare("UPDATE user SET resetPasswordUser = ? WHERE nicknameUser = ?");
+        $pdo = $bdd->prepare("UPDATE " . PREFIXTABLE ."user SET resetPasswordUser = ? WHERE nicknameUser = ?");
         $pdo->execute(array($resetCode, $res['nicknameUser']));
 
         $nicknameUser = $res['nicknameUser'];
@@ -624,7 +624,7 @@ HTML;
 		}
 		$bdd = MyPDO::getInstance();
 
-        $pdo = $bdd->prepare("UPDATE user SET passwordUser = ?, resetPasswordUser = null WHERE emailUser = ?");
+        $pdo = $bdd->prepare("UPDATE " . PREFIXTABLE ."user SET passwordUser = ?, resetPasswordUser = null WHERE emailUser = ?");
         $pdo->execute(array(hash('sha256', $data['password']), $data['email']));
         return true;
 	}
@@ -660,13 +660,13 @@ HTML;
 		    return false;
 
 		$bdd = MyPDO::getInstance();
-		$pdo = $bdd->prepare("SELECT emailUser FROM user WHERE emailUser = ?");
+		$pdo = $bdd->prepare("SELECT emailUser FROM " . PREFIXTABLE ."user WHERE emailUser = ?");
 		$pdo->execute(array($email));
 		$res = $pdo->fetch();
 		if($res){
 			return -1;
 		}
-		$pdo = $bdd->prepare("UPDATE user SET emailUser = ? WHERE idUser = ?");
+		$pdo = $bdd->prepare("UPDATE " . PREFIXTABLE ."user SET emailUser = ? WHERE idUser = ?");
 		$pdo->execute(array($email, $this->idUser));
         $this->emailUser = $email;
         $_SESSION['user']->emailUser = $this->emailUser;
@@ -696,7 +696,7 @@ HTML;
 	public function deleteUser($password){
 		$bdd = MyPDO::getInstance();
 
-		$pdo = $bdd->prepare("SELECT passwordUser FROM user WHERE idUser = ? AND passwordUser = ?");
+		$pdo = $bdd->prepare("SELECT passwordUser FROM " . PREFIXTABLE ."user WHERE idUser = ? AND passwordUser = ?");
 		$pdo->execute(array($this->idUser, hash("sha256", $password)));
 		$res = $pdo->fetch();
 
@@ -706,7 +706,7 @@ HTML;
 
 		$this->deleteUser = md5(uniqid());
 		$_SESSION['user']->deleteUser = $this->deleteUser;
-		$pdo = $bdd->prepare("UPDATE user SET deleteUser = ? WHERE idUser = ?");
+		$pdo = $bdd->prepare("UPDATE " . PREFIXTABLE ."user SET deleteUser = ? WHERE idUser = ?");
 		$pdo->execute(array($this->deleteUser, $this->idUser));
 
 		return true;
@@ -736,7 +736,7 @@ HTML;
 
 	public static function validDeleteUser($email){
 		$bdd = MyPDO::getInstance();
-		$pdo = $bdd->prepare("SELECT isAdministrator FROM user WHERE emailUser = ?");
+		$pdo = $bdd->prepare("SELECT isAdministrator FROM " . PREFIXTABLE ."user WHERE emailUser = ?");
 		$pdo->execute(array($email));
 		$res = $pdo->fetch();
 
@@ -744,7 +744,7 @@ HTML;
 			return false;
 		}
 
-		$pdo = $bdd->prepare("DELETE FROM user WHERE emailUser = ?");
+		$pdo = $bdd->prepare("DELETE FROM " . PREFIXTABLE ."user WHERE emailUser = ?");
 		$pdo->execute(array($email));
 
 		return true;

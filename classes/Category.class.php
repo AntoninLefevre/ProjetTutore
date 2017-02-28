@@ -68,7 +68,7 @@ class Category {
 	public static function getCategory($idCategory) {
 		$bdd = MyPDO::getInstance();
 
-		$pdo = $bdd->prepare("SELECT * FROM category WHERE idCategory = ?");
+		$pdo = $bdd->prepare("SELECT * FROM " . PREFIXTABLE ."category WHERE idCategory = ?");
 		$pdo->execute(array($idCategory));
 		$pdo->setFetchMode(PDO::FETCH_CLASS, __CLASS__);
 
@@ -93,7 +93,7 @@ class Category {
 			$req = "";
 		}
 
-		$pdo = $bdd->prepare("SELECT * FROM category" . $req);
+		$pdo = $bdd->prepare("SELECT * FROM " . PREFIXTABLE ."category" . $req);
 		$pdo->execute();
 
 		$res = $pdo->fetchAll(PDO::FETCH_CLASS, __CLASS__);
@@ -119,7 +119,7 @@ class Category {
 	public function getCategorysChildren() {
 		$bdd = MyPDO::getInstance();
 
-		$pdo = $bdd->prepare("SELECT * FROM category WHERE idCategoryParent = ?");
+		$pdo = $bdd->prepare("SELECT * FROM " . PREFIXTABLE ."category WHERE idCategoryParent = ?");
 		$pdo->execute(array($this->idCategory));
 
 		$res = $pdo->fetchAll(PDO::FETCH_CLASS, __CLASS__);
@@ -144,7 +144,9 @@ class Category {
 		$breadcrumb = "<a href='categories.php?id=" . $this->idCategory . "'>" . $this->lblCategory . '</a>';
 		if(!is_null($this->idCategoryParent)){
 			$categoryParent = Category::getCategory($this->idCategoryParent);
-			$breadcrumb = "<li>" . $categoryParent->getBreadcrumb() . "</li><li class='active'>" . $breadcrumb . "</li>";
+			$breadcrumb = $categoryParent->getBreadcrumb() . "<li>" . $breadcrumb . "</li>";
+		} else {
+			$breadcrumb = "<li class='active'>" . $breadcrumb . "</li>";
 		}
 
 		return $breadcrumb;
@@ -195,7 +197,7 @@ HTML;
 		}
 
 		$bdd = MyPDO::getInstance();
-		$pdo = $bdd->prepare("INSERT INTO category VALUES(NULL, ?, ?)");
+		$pdo = $bdd->prepare("INSERT INTO " . PREFIXTABLE ."category VALUES(NULL, ?, ?)");
 		$pdo->execute(array($data['lblCategory'], $data['category']));
 
 		return true;
@@ -286,7 +288,7 @@ HTML;
 		}
 
 		$bdd = MyPDO::getInstance();
-		$pdo = $bdd->prepare("UPDATE category SET lblCategory = ?, idCategoryParent = ? WHERE idCategory = ?");
+		$pdo = $bdd->prepare("UPDATE " . PREFIXTABLE ."category SET lblCategory = ?, idCategoryParent = ? WHERE idCategory = ?");
 		$pdo->execute(array($data['lblCategory'], $data['category'], $this->idCategory));
 
 		return true;
@@ -315,7 +317,7 @@ HTML;
 	public function deleteCategory(){
         $bdd = MyPDO::getInstance();
 
-        $pdo = $bdd->prepare("DELETE FROM category WHERE idCategory = ?");
+        $pdo = $bdd->prepare("DELETE FROM " . PREFIXTABLE ."category WHERE idCategory = ?");
         $pdo->execute(array($this->idCategory));
 
         return true;

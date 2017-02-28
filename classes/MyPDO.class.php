@@ -89,13 +89,19 @@ PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
 	public static function getInstance() {
 		if (is_null(self::$_PDOInstance)) {
 			if (self::hasConfiguration()) {
-				self::$_PDOInstance = new PDO(self::$_DSN, self::$_username, self::$_password, self::$_driverOptions) ;
+				try {
+					self::$_PDOInstance = new PDO(self::$_DSN, self::$_username, self::$_password, self::$_driverOptions) ;
+				} catch (Exception $e) {
+					return $e;
+				}
+				return self::$_PDOInstance;
 			}
 			else {
 				return false;
 			}
+		} else {
+			return self::$_PDOInstance;
 		}
-		return self::$_PDOInstance;
 	}
 
 

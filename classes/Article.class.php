@@ -66,7 +66,7 @@ class Article {
 	public static function getArticle($idArticle) {
         $bdd = MyPDO::getInstance();
 
-        $pdo = $bdd->prepare("SELECT * FROM article WHERE idArticle = ?");
+        $pdo = $bdd->prepare("SELECT * FROM " . PREFIXTABLE ."article WHERE idArticle = ?");
         $pdo->execute(array($idArticle));
         $pdo->setFetchMode(PDO::FETCH_CLASS, __CLASS__);
 
@@ -94,7 +94,7 @@ class Article {
             $req = " LIMIT " . $limit['limit'] . " OFFSET " . $limit['offset'];
         }
 
-		$pdo = $bdd->prepare("SELECT * FROM article" . $req);
+		$pdo = $bdd->prepare("SELECT * FROM " . PREFIXTABLE ."article" . $req);
 		$pdo->execute();
         $pdo->setFetchMode(PDO::FETCH_CLASS, __CLASS__);
 
@@ -111,7 +111,7 @@ class Article {
     public static function countArticles(){
         $bdd = MyPDO::getInstance();
 
-        $pdo = $bdd->prepare("SELECT COUNT(*) as nbArticles FROM article");
+        $pdo = $bdd->prepare("SELECT COUNT(*) as nbArticles FROM " . PREFIXTABLE ."article");
         $pdo->execute();
         $res = $pdo->fetch();
 
@@ -128,7 +128,7 @@ class Article {
             $req = " LIMIT " . $limit['limit'] . " OFFSET " . $limit['offset'];
         }
 
-        $pdo = $bdd->prepare("SELECT * FROM article WHERE idCategory = " . $where . $req);
+        $pdo = $bdd->prepare("SELECT * FROM " . PREFIXTABLE ."article WHERE idCategory = " . $where . $req);
         $pdo->setFetchMode(PDO::FETCH_CLASS, __CLASS__);
         $pdo->execute();
 
@@ -145,7 +145,7 @@ class Article {
         $where = implode(" OR idCategory = ", $categories);
         $bdd = MyPDO::getInstance();
 
-        $pdo = $bdd->prepare("SELECT COUNT(*) as nbArticles FROM article WHERE idCategory = " . $where);
+        $pdo = $bdd->prepare("SELECT COUNT(*) as nbArticles FROM " . PREFIXTABLE ."article WHERE idCategory = " . $where);
         $pdo->execute();
         $res = $pdo->fetch();
 
@@ -386,7 +386,7 @@ HTML;
 		$bdd = MyPDO::getInstance();
 
 
-		$pdo = $bdd->prepare("SELECT * FROM category WHERE idCategory = ?");
+		$pdo = $bdd->prepare("SELECT * FROM " . PREFIXTABLE ."category WHERE idCategory = ?");
 		$pdo->execute(array($data['category']));
 		$res = $pdo->fetch();
 
@@ -394,7 +394,7 @@ HTML;
 			return false;
 		}
 
-		$pdo = $bdd->prepare("INSERT INTO article VALUES(NULL, ?, ?, NOW(), ?, ?)");
+		$pdo = $bdd->prepare("INSERT INTO " . PREFIXTABLE ."article VALUES(NULL, ?, ?, NOW(), ?, ?)");
 		$pdo->execute(array($data['title'], $data['content'], $data['category'], $_SESSION['user']->idUser));
 
 		return true;
@@ -466,7 +466,7 @@ HTML;
     {
         $bdd = MyPDO::getInstance();
 
-        $pdo = $bdd->prepare("SELECT * FROM category WHERE idCategory = ?");
+        $pdo = $bdd->prepare("SELECT * FROM " . PREFIXTABLE ."category WHERE idCategory = ?");
         $pdo->execute(array($data['category']));
         $res = $pdo->fetch();
 
@@ -474,7 +474,7 @@ HTML;
             return false;
         }
 
-        $pdo = $bdd->prepare("UPDATE article SET titleArticle = ?, contentArticle = ?, idCategory = ? WHERE idArticle = ?");
+        $pdo = $bdd->prepare("UPDATE " . PREFIXTABLE ."article SET titleArticle = ?, contentArticle = ?, idCategory = ? WHERE idArticle = ?");
         $pdo->execute(array($data['title'], $data['content'], $data['category'], $this->idArticle));
 
         return true;
@@ -494,7 +494,7 @@ HTML;
     public function deleteArticle(){
         $bdd = MyPDO::getInstance();
 
-        $pdo = $bdd->prepare("DELETE FROM article WHERE idArticle = ?");
+        $pdo = $bdd->prepare("DELETE FROM " . PREFIXTABLE ."article WHERE idArticle = ?");
         $pdo->execute(array($this->idArticle));
 
         return true;
