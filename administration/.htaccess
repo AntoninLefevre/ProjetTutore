@@ -1,0 +1,1 @@
+ErrorDocument 404 "/administration/error404.php"
