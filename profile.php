@@ -3,6 +3,8 @@
 require_once('autoload.inc.php');
 
 
+if(!User::isConnected())
+    header("Location: connexion.php");
 
 if(isset($_POST['formEditEmail'])){
     $res = $user->editEmail($_POST['email']);
@@ -29,7 +31,7 @@ if(isset($_POST['formEditEmail'])){
 }
 
 
-$wp = new WebPage("Profil");
+$wp = new WebPage($siteOptions['siteName'] . " - " . "Profil");
 
 if($user->isAdministrator && isset($_GET['action']) && $_GET['action'] == "delete" && isset($_GET['i']) && $_GET['i'] == "admin" ){
     $wp->appendContent("Vous ne pouvez pas supprimer votre compte car vous êtes administrateur");

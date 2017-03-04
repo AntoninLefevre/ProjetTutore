@@ -175,13 +175,15 @@ class Category {
 		$select .= "</select>";
 
 		$html = <<<HTML
-		<div class="col-md-4 col-md-offset-4 text-center">
-			<form action="" method="post" class="form-horizontal">
-				$info
-				<input type="text" name="lblCategory" placeholder="Nom de la catégorie" pattern=".{1,}" class="form-control">
-				$select
-				<input type="submit" name="formAddCategory" value="Ajouter" class="btn btn-default">
-			</form>
+		<div class="row">
+			<div class="col-md-4 col-md-offset-4 text-center">
+				<form action="" method="post" class="form-horizontal text-center">
+					$info
+					<input type="text" name="lblCategory" placeholder="Nom de la catégorie" pattern=".{1,}" class="form-control">
+					$select
+					<input type="submit" name="formAddCategory" value="Ajouter" class="btn btn-default">
+				</form>
+			</div>
 		</div>
 HTML;
 		return $html;
@@ -264,15 +266,17 @@ HTML;
 		}
 
 		$select .= "</select>";
-
+		var_dump("test");
 		$html = <<<HTML
-		<div class="col-md-4 col-md-offset-4 text-center">
-			<form action="" method="post" class="form-horizontal">
-				$info
-				<input type="text" name="lblCategory" placeholder="Nom de la catégorie" value=$lblCategory pattern=".{1,}" class="form-control">
-				$select
-				<input type="submit" name="formEditCategory" value="Modifier" class="btn btn-default">
-			</form>
+		<div class="row">
+			<div class="col-md-4 col-md-offset-4 text-center">
+				<form action="" method="post" class="form-horizontal text-center">
+					$info
+					<input type="text" name="lblCategory" placeholder="Nom de la catégorie" value=$lblCategory pattern=".{1,}" class="form-control">
+					$select
+					<input type="submit" name="formEditCategory" value="Modifier" class="btn btn-default">
+				</form>
+			</div>
 		</div>
 HTML;
 		return $html;

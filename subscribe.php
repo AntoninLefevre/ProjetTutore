@@ -24,7 +24,7 @@ HTML
     $formAddUser = User::formAddUser();
 }
 
-$wp = new WebPage("Inscription");
+$wp = new WebPage($siteOptions['siteName'] . " - " . "Inscription");
 
 $wp->appendContent($formAddUser);
 echo $wp->toHTML();

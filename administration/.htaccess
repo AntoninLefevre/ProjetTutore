@@ -1,1 +1,1 @@
-ErrorDocument 404 "/administration/error404.php"
+ErrorDocument 404 "/ProjetTutore/administration/error404.php"

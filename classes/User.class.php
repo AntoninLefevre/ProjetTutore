@@ -221,7 +221,6 @@ HTML;
 
         $key = hash("sha256", $res->nicknameUser . $res->emailUser);
 
-        var_dump($data);
         if($key == $data[1]){
             return User::createFromCookie($data[0]);
         } else {
@@ -409,16 +408,16 @@ HTML;
         			<form action="" method="post" class="form-horizontal text-center">
         				$displayInfos
                         <div class="form-group">
-            			 	<div class="col-md-4 col-md-offset-4"><input type="text" placeholder="Pseudo" name="nickname" value="$nickname" pattern=".{5,20}"  class="form-control" required></div>
-            			 	<div class="col-md-4 col-md-offset-4"><input type="password" placeholder="Mot de passe" name="password" pattern=".{8,}"  class="form-control" required></div>
-            			 	<div class="col-md-4 col-md-offset-4"><input type="email" placeholder="Adresse e-mail" name="email" value="$email"  class="form-control" required></div>
+            			 	<div class="col-md-4 col-md-offset-4"><input type="text" placeholder="Pseudo" name="nickname" value="$nickname" pattern=".{5,20}" class="form-control" required></div>
+            			 	<div class="col-md-4 col-md-offset-4"><input type="password" placeholder="Mot de passe" name="password" pattern=".{8,}" class="form-control" required></div>
+            			 	<div class="col-md-4 col-md-offset-4"><input type="email" placeholder="Adresse e-mail" name="email" value="$email" class="form-control" required></div>
                         </div>
                         <div class="form-group">
                             <div class="row">
                                 <label for="captcha" class="control-label col-md-6 col-md-offset-2">Saisissez les lettres de l'image: </label>
                             </div>
                             <div class="row">
-                                <div class="col-md-4 col-md-offset-3"><input type="text" name="captcha" id="captcha" placeholder="Captcha" required></div>
+                                <div class="col-md-4 col-md-offset-3"><input type="text" name="captcha" id="captcha" placeholder="Captcha" class="form-control" required></div>
                                 <div class="col-md-2"><img src="captcha.php" alt="captcha"></div>
                             </div>
                         </div>

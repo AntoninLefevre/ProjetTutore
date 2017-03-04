@@ -8,7 +8,7 @@ $user = User::createFromSession();
 if(isset($_GET['idC'])){
     $category = Category::getCategory($_GET['idC']);
     if($category){
-        $wp = New WebPage($category->lblCategory);
+        $wp = New WebPage($siteOptions['siteName'] . " - " . $category->lblCategory);
         $wp->appendContent(Category::displayForum($_GET['idC']));
     } else {
         header("Location: forum.php");
@@ -27,12 +27,12 @@ if(isset($_GET['idC'])){
             else
                 $info = "Le captcha est incorrect";
         }
-        $wp = New WebPage($article->titleArticle);
+        $wp = New WebPage($siteOptions['siteName'] . " - " . $article->titleArticle);
         if(User::isConnected()){
             $wp->appendContent(Comment::formAddComment(array(), $info));
         } else {
             $wp->appendContent(<<<HTML
-                <a href="connexion.php">Connectez-vous</a> pour commenter
+                <div class="row text-center"><a href="connexion.php">Connectez-vous</a> pour commenter</div>
 HTML
             );
         }
@@ -60,7 +60,7 @@ HTML
         header("Location: forum.php");
     }
 } else {
-    $wp = New WebPage("Forum");
+    $wp = New WebPage($siteOptions['siteName'] . " - " . "Forum");
     $wp->appendContent(Category::displayForum());
 }
 

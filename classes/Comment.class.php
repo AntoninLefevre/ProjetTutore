@@ -95,7 +95,7 @@ class Comment {
 	public static function getComments() {
 		$bdd = MyPDO::getInstance();
 
-		$pdo = $bdd->prepare("SELECT * FROM " . PREFIXTABLE ."comment");
+		$pdo = $bdd->prepare("SELECT * FROM " . PREFIXTABLE ."comment ORDER BY datetimeComment DESC");
 		$pdo->setFetchMode(PDO::FETCH_CLASS, __CLASS__);
 
 		$pdo->execute();
@@ -118,7 +118,7 @@ class Comment {
             $req = " LIMIT " . $limit['limit'] . " OFFSET " . $limit['offset'];
         }
 
-		$pdo = $bdd->prepare("SELECT * FROM " . PREFIXTABLE ."comment WHERE idArticle = ?" . $req);
+		$pdo = $bdd->prepare("SELECT * FROM " . PREFIXTABLE ."comment WHERE idArticle = ?" . " ORDER BY datetimeComment DESC" . $req);
 		$pdo->setFetchMode(PDO::FETCH_CLASS, __CLASS__);
 
 		$pdo->execute(array($idArticle));

@@ -50,7 +50,7 @@ if(isset($_POST['formConnection'])){
     }
 }
 
-$wp = new WebPage("Connexion");
+$wp = new WebPage($siteOptions['siteName'] . " - " . "Connexion");
 
 $wp->appendContent($formConnection);
 

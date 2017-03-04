@@ -94,7 +94,7 @@ class Article {
             $req = " LIMIT " . $limit['limit'] . " OFFSET " . $limit['offset'];
         }
 
-		$pdo = $bdd->prepare("SELECT * FROM " . PREFIXTABLE ."article" . $req);
+		$pdo = $bdd->prepare("SELECT * FROM " . PREFIXTABLE ."article ORDER BY datetimeArticle DESC" . $req);
 		$pdo->execute();
         $pdo->setFetchMode(PDO::FETCH_CLASS, __CLASS__);
 
@@ -128,7 +128,7 @@ class Article {
             $req = " LIMIT " . $limit['limit'] . " OFFSET " . $limit['offset'];
         }
 
-        $pdo = $bdd->prepare("SELECT * FROM " . PREFIXTABLE ."article WHERE idCategory = " . $where . $req);
+        $pdo = $bdd->prepare("SELECT * FROM " . PREFIXTABLE ."article WHERE idCategory = " . $where . " ORDER BY datetimeArticle DESC" . $req);
         $pdo->setFetchMode(PDO::FETCH_CLASS, __CLASS__);
         $pdo->execute();
 
@@ -293,10 +293,13 @@ HTML;
     }
 
     public function displayArticleExtract(){
-        $content = strip_tags(substr($this->contentArticle, 0 , 250));
-        $space=strrpos($content, ' ');
+        $content = strip_tags($this->contentArticle);
 
-        $content=substr($content,0,$space)." ...";
+        if(strlen($content) > 250){
+            $content = substr($content, 0 , 250);
+            $space=strrpos($content, ' ');
+            $content=substr($content,0,$space)." ...";
+        }
         $html = <<<HTML
         <div class="row">
             <div class="col-md-10 col-md-offset-1">
@@ -335,9 +338,10 @@ HTML;
                     mode: "specific_textareas",
                     editor_selector: "wysiwyg",
                     language: "fr_FR",
-                    height: 200,
+                    height: 500,
                     image_title: true,
 
+                    media_poster: false,
                     images_upload_url: 'postAcceptor.php',
                     file_picker_types: 'image',
                     plugins: [
@@ -376,7 +380,7 @@ HTML;
                     $categorys
                 </fieldset>
 
-                <input type="submit" name="formRedacArticle">
+                <input type="submit" name="formRedacArticle" class="btn btn-default">
             </form>
 HTML;
         return $html;
@@ -415,9 +419,10 @@ HTML;
                     mode: "specific_textareas",
                     editor_selector: "wysiwyg",
                     language: "fr_FR",
-                    height: 200,
+                    height: 500,
                     image_title: true,
 
+                    media_poster: false,
                     images_upload_url: 'postAcceptor.php',
                     file_picker_types: 'image',
                     plugins: [
@@ -456,7 +461,7 @@ HTML;
                     $categorys
                 </fieldset>
 
-                <input type="submit" name="formEditArticle" value="Modifier">
+                <input type="submit" name="formEditArticle" value="Modifier" class="btn btn-default">
             </form>
 HTML;
         return $html;
@@ -525,7 +530,7 @@ HTML;
 HTML;
             }
         } else {
-            $html = "Soyez le premier à commenter";
+            $html = '<div class="row text-center">Soyez le premier à commenter</div>';
         }
 
 

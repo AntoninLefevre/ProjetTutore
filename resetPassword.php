@@ -23,7 +23,7 @@ if(isset($_POST['formResetPasswordEmail'])){
     }
 }
 
-$wp = new WebPage("Oubli de mot de passe");
+$wp = new WebPage($siteOptions['siteName'] . " - " . "Oubli de mot de passe");
 
 $wp->appendContent($formResetPassword);
 

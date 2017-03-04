@@ -2,7 +2,7 @@
 
 require_once('autoload.inc.php');
 
-$wp = new WebPage("Contact");
+$wp = new WebPage($siteOptions['siteName'] . " - " . "Contact");
 
 if(isset($_POST['formContact'])){
     if(isset($_POST['subject']) && isset($_POST['email']) && isset($_POST['message'])){

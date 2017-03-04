@@ -2,9 +2,12 @@
 
 require_once('autoload.inc.php');
 
-$user = User::createFromSession();
+if(!User::isConnected())
+    header("Location: connexion.php");
 
-$wp = new WebPage("Messages privés");
+
+
+$wp = new WebPage($siteOptions['siteName'] . " - " . "Messages privés");
 
 if(isset($_GET['id'])){
     $pm = PrivateMessage::getPM($_GET['id']);

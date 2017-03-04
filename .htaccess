@@ -1,5 +1,5 @@
-ErrorDocument 404 "/error404.php"
 
+ErrorDocument 404 /error404.php
 <Files configsql.ini>
 Deny from all
 </Files>

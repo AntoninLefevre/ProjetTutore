@@ -61,7 +61,7 @@ TXT;
 
                     $reqs = preg_replace("/urlSiteValue/", $url, $reqs);
                     $reqs = preg_replace("/nicknameUserValue/", $_POST['nicknameUser'], $reqs);
-                    $reqs = preg_replace("/passwordUserValue/", hash("sha256", $_POST['password']), $reqs);
+                    $reqs = preg_replace("/passwordUserValue/", hash("sha256", $_POST['passwordUser']), $reqs);
 
                     $pdo = $bdd->prepare($reqs);
                     $pdo->execute();

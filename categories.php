@@ -4,7 +4,7 @@ include_once('autoload.inc.php');
 
 $category = Category::getCategory($_GET['id']);
 $breadcrumb = $category->getBreadcrumb();
-$wp = new Webpage($siteOptions['siteName'] . " - " . $category->lblCategory);
+$wp = new WebPage($siteOptions['siteName'] . " - " . $category->lblCategory);
 
 $listChildren = $category->getIdChildren();
 
